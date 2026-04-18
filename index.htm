@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>K.Çekmece Belediyesi | AR Geliştirme Stüdyosu</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Righteous&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-blue: #0ea5e9;
+            --primary-pink: #ff007f;
+            --primary-yellow: #facc15;
+            --primary-green: #10b981;
+            --primary-purple: #8b5cf6;
+            --dark-navy: #0f172a;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--dark-navy);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.1), transparent 30%),
+                radial-gradient(circle at 90% 80%, rgba(255, 0, 127, 0.1), transparent 30%);
+            background-attachment: fixed;
+            color: #f8fafc;
+            font-family: 'Nunito', sans-serif;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px 30px; 
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            width: 25vw; 
+            max-width: 140px; 
+            height: auto;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
+        }
+
+        h1 {
+            font-family: 'Righteous', cursive;
+            font-size: 2.8rem; 
+            margin: 0 0 5px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: linear-gradient(to right, #fff, var(--primary-blue), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #cbd5e1; 
+            margin-top: 5px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto 80px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            padding: 20px;
+        }
+
+        .project-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 28px;
+            padding: 35px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .project-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .badge {
+            align-self: flex-start;
+            padding: 6px 16px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h2 {
+            font-family: 'Righteous', cursive;
+            font-size: 1.5rem;
+            margin: 0 0 15px 0;
+            color: #fff;
+        }
+
+        .description {
+            font-size: 1rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+            flex-grow: 1;
+            margin-bottom: 20px;
+        }
+
+        .tech-info {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 18px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .tech-info div {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+
+        .tech-info span {
+            font-weight: 700;
+        }
+
+        .btn-launch {
+            display: block;
+            text-align: center;
+            background: #fff;
+            color: var(--dark-navy);
+            padding: 16px;
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: 900;
+            font-size: 1.1rem;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            margin-top: auto;
+        }
+
+        .project-card:hover .btn-launch {
+            background: var(--hover-bg, var(--primary-blue));
+            color: #fff;
+        }
+
+        footer {
+            text-align: center;
+            padding: 60px;
+            color: #64748b;
+            font-weight: 700;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 1.6rem; }
+            .subtitle { font-size: 1rem; letter-spacing: 0.5px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <img src="kucukcekmece_logo.png" alt="Küçükçekmece Belediyesi" class="logo" onerror="this.style.display='none'">
+        
+        <h1>KÜÇÜKÇEKMECE BELEDİYESİ</h1>
+        <div class="subtitle">Gençlik Merkezi Artırılmış Gerçeklik Deneyim Laboratuvarı</div>
+    </header>
+
+    <div class="container" id="projectContainer">
+        </div>
+
+    <footer>
+        Küçükçekmece Belediyesi Gençlik Merkezi<br>
+        Bilişim Sınıfı Geliştirme Projesi &copy; 2026<br>
+        <a href="https://codekidi.org/" target="_blank" style="color: var(--primary-blue); text-decoration: none; margin-top: 10px; display: inline-block;">Code Kidi Platformu</a>
+    </footer>
+
+    <script>
+        // Tema Renkleri
+        const themes = [
+            { hex: '#0ea5e9', rgb: 'rgba(14, 165, 233, 0.2)', text: '#fff' },  // Mavi
+            { hex: '#ff007f', rgb: 'rgba(255, 0, 127, 0.2)', text: '#fff' },  // Pembe
+            { hex: '#facc15', rgb: 'rgba(250, 204, 21, 0.2)', text: '#000' }, // Sarı
+            { hex: '#10b981', rgb: 'rgba(16, 185, 129, 0.2)', text: '#fff' }, // Yeşil
+            { hex: '#8b5cf6', rgb: 'rgba(139, 92, 246, 0.2)', text: '#fff' }  // Mor
+        ];
+
+        // 35 Adet Proje Veritabanı
+        const projectsData = [
+            // --- KLASÖRLERDEN GELEN 24 PROJE ---
+            { title: "Kırmızı Yeşil Nokta", desc: "Temel etkileşimli nokta takibi. Ekranda beliren hedefleri algılayın.", link: "java_1_kirmizi_yesil_nokta/index.html", t1: "Algoritma", v1: "Renk Tespiti", t2: "Platform", v2: "Java/Processing", icon: "fa-circle-dot" },
+            { title: "Hayalet İz", desc: "Hareket eden nesnelerin arkasında bıraktığı sinematik iz efektleri.", link: "java_2_hayalet_iz/index.html", t1: "Efekt", v1: "Trail Render", t2: "Mantık", v2: "Kare Gecikmesi", icon: "fa-ghost" },
+            { title: "İz Bırakan Resim", desc: "Fare imleci ile çizim yaparak resmin ortaya çıkmasını sağlayan interaktif tuval.", link: "java_3_iz_birakan_Resim/index.html", t1: "Etkileşim", v1: "Mouse Maskeleme", t2: "Görsel", v2: "Dinamik Canvas", icon: "fa-paintbrush" },
+            { title: "Basit Fizik", desc: "Yerçekimi, çarpışma ve sekme gibi temel fizik kurallarının simülasyonu.", link: "java_4_basit_fizik/index.html", t1: "Simülasyon", v1: "2D Yerçekimi", t2: "Motor", v2: "Basic Physics", icon: "fa-apple-whole" },
+            { title: "Göz Takip", desc: "Kullanıcının bakış açısını algılayarak ekrandaki nesneleri yönlendiren sistem.", link: "java_5_goz_takip/index.html", t1: "Sensör", v1: "Eye Tracking", t2: "Kontrol", v2: "Bakış Odaklı", icon: "fa-eye" },
+            { title: "Fare Takip Noktaları", desc: "Fare hareketlerine duyarlı, dinamik parçacık (particle) sistemi.", link: "java_egitimi1_mouse_noktalar/index.html", t1: "Etkileşim", v1: "Pointer Takibi", t2: "Sistem", v2: "Parçacık Ağı", icon: "fa-computer-mouse" },
+            { title: "Sanal El Takip", desc: "Kamera üzerinden el hareketlerini algılayıp dijital ortama aktaran arayüz.", link: "java_egitimi2_el_takip/index.html", t1: "Biyometri", v1: "Hand Landmark", t2: "Donanım", v2: "WebCam", icon: "fa-hand-sparkles" },
+            { title: "Balon Patlatma (Mini)", desc: "Küçük ekranlar için optimize edilmiş, refleks gerektiren hedef vurma oyunu.", link: "java_egitimi3_balon_patlatma_kucukekran/index.html", t1: "Oyun", v1: "Hedef Vurma", t2: "Ekran", v2: "Kompakt Mod", icon: "fa-bullseye" },
+            { title: "Balon Patlatma (Sessiz)", desc: "Sessiz ortamlar ve laboratuvarlar için ses efektleri kapatılmış oyun sürümü.", link: "java_egitimi4_balon_patlatma_sessiz/index.html", t1: "Erişilebilirlik", v1: "Sessiz Mod", t2: "Mekanik", v2: "Puanlama", icon: "fa-volume-xmark" },
+            { title: "Balon Patlatma (Sesli)", desc: "Eğlenceli ses efektleriyle zenginleştirilmiş tam etkileşimli sürüm.", link: "java_egitimi5_balon_patlatma_sesli/index.html", t1: "Deneyim", v1: "İşitsel Geri Bildirim", t2: "Etkileşim", v2: "Yüksek", icon: "fa-volume-high" },
+            { title: "Minority Report Arayüzü", desc: "Sadece el hareketleriyle havadan kontrol edilen futuristik panel konsepti.", link: "java_egitimi6_Minority_Report/index.html", t1: "Arayüz", v1: "Gesture Control", t2: "İlham", v2: "Bilim Kurgu", icon: "fa-hand-pointer" },
+            { title: "Üretken Dijital Sanat", desc: "Algoritmik kodlar kullanılarak oluşturulan sanatsal çizim jeneratörü.", link: "java_egitimi7_dijital_sanat/index.html", t1: "Tasarım", v1: "Generative Art", t2: "Mantık", v2: "Rastgele Üretim", icon: "fa-palette" },
+            { title: "Minority Report PRO", desc: "Havadan arayüz kontrolünün daha gelişmiş ve hassaslaştırılmış sürümü.", link: "java_egitimi8_Minority_Report_pro/index.html", t1: "Hassasiyet", v1: "Yüksek Kalibrasyon", t2: "Mod", v2: "Pro", icon: "fa-microchip" },
+            { title: "MR Pro: Belediye Arayüzü", desc: "Küçükçekmece Belediyesi kurumsal temasına uygun tasarlanmış özel sürüm.", link: "java_egitimi9_Minority_Report_pro_belediyes/index.html", t1: "Tasarım", v1: "Kurumsal Tema", t2: "Platform", v2: "Özel Entegrasyon", icon: "fa-building" },
+            { title: "MR Pro: Gençlik Merkezi", desc: "Gençlik merkezi öğrencileri için özel hazırlanmış, sergiye hazır arayüz.", link: "java_egitimi10_Minority_Report_pro_GENCLIK_MERKEZI/index.html", t1: "Kullanıcı", v1: "Öğrenciler", t2: "Optimizasyon", v2: "Sergi Modu", icon: "fa-users" },
+            { title: "AI Spor Koçu (Sağ Kol)", desc: "Kamera ile sağ kol hareketlerini analiz edip egzersiz doğrulayan AI asistan.", link: "java_egitimi11_yapay_zeka_spor_kocu_sag_kol/index.html", t1: "Yapay Zeka", v1: "Pose Estimation", t2: "Analiz", v2: "Açı Hesaplama", icon: "fa-dumbbell" },
+            { title: "AI Spor Koçu (V2 Beta)", desc: "Geliştirilmiş yapay zeka destekli tam vücut spor koçu (Hata ayıklama sürümü).", link: "java_egitimi12_AI_Personal_Trainer_v2_kitleniyor_sorunlu/index.html", t1: "Durum", v1: "Geliştirme Aşamasında", t2: "Mod", v2: "Debug", icon: "fa-bug" },
+            { title: "Halkalı Sanat Atölyesi", desc: "El hareketleriyle ekrana dokunmadan resim çizebileceğiniz sanal ressam.", link: "java_egitimi13_sanal_ressam_halkali_sanat_atolyesi/index.html", t1: "Konum", v1: "Halkalı Sanat", t2: "Araç", v2: "Sanal Fırça", icon: "fa-brush" },
+            { title: "Ritim Atölyesi", desc: "Vücut hareketleriyle müzik aletlerini çalabilmenizi sağlayan etkileşimli platform.", link: "java_egitimi14_ritim_atolyesi/index.html", t1: "Disiplin", v1: "Müzik & Hareket", t2: "Çıktı", v2: "Ses Sentezi", icon: "fa-music" },
+            { title: "Dijital Fizik Köprüsü", desc: "Gerçek dünya fizik kurallarının sanal nesnelere uygulandığı köprü simülasyonu.", link: "java_egitimi15_dijital_fizik_koprusu/index.html", t1: "Test", v1: "Mukavemet", t2: "Simülasyon", v2: "Ağırlık Dağılımı", icon: "fa-bridge" },
+            { title: "Dijital Fizik Köprüsü V2", desc: "Gelişmiş çarpışma ve materyal algoritmalarıyla güncellenmiş fizik testi.", link: "java_egitimi16_dijital_fizik_koprusu_v2/index.html", t1: "Motor", v1: "Gelişmiş RigidBody", t2: "Materyal", v2: "Dinamik", icon: "fa-cogs" },
+            { title: "Biyometrik Laboratuvar", desc: "Yüz, göz ve hareket verilerini anlık analiz ederek istatistik çıkaran sistem.", link: "java_egitimi17_biyometrik_analiz_labaratuvar/index.html", t1: "Veri", v1: "Biyometrik Analiz", t2: "Güvenlik", v2: "Kimlik Doğrulama", icon: "fa-fingerprint" },
+            { title: "Sentinel Hub", desc: "Çeşitli sensör ve kameralardan gelen verilerin toplandığı merkezi güvenlik ağı.", link: "java_egitimi18_sentinel_hub/index.html", t1: "Sistem", v1: "Merkezi İzleme", t2: "Bağlantı", v2: "IoT Protokolü", icon: "fa-network-wired" },
+            { title: "Biyonik Göz Faresi", desc: "Sadece gözbebeği hareketleriyle bilgisayar faresini yönetmenizi sağlayan teknoloji.", link: "java_egitimi19_biyonik_goz_faresi/index.html", t1: "Erişilebilirlik", v1: "Göz İmleci", t2: "Hassasiyet", v2: "Yüksek", icon: "fa-crosshairs" },
+
+            // --- YENİ EKLENEN ÖZEL PROJELER (Web Bağlantıları) ---
+            { title: "DeepFace Yüz Tanıma", desc: "Python DeepFace kütüphanesi ile anlık yaş, cinsiyet ve duygu analizi canlı testi.", link: "https://huggingface.co/spaces/serengil/deepface", t1: "Altyapı", v1: "HuggingFace API", t2: "Teknoloji", v2: "Deep Learning", icon: "fa-face-smile-scan" },
+            { title: "Siber Saldırı Haritası 1", desc: "Kaspersky altyapısı ile dünyadaki siber saldırıları 3 boyutlu canlı küre üzerinde izleyin.", link: "https://cybermap.kaspersky.com/tr", t1: "Servis", v1: "Kaspersky Lab", t2: "Veri", v2: "Real-Time 3D", icon: "fa-globe" },
+            { title: "Siber Saldırı Haritası 2", desc: "FortiGuard ağı üzerinden gelen siber tehditlerin ve ağ paketlerinin görsel dökümü.", link: "https://threatmap.fortiguard.com/", t1: "Servis", v1: "Fortinet Threat", t2: "Veri", v2: "Ağ Trafiği İzleme", icon: "fa-shield-halved" },
+            { title: "Şifre Güvenlik Kontrolü", desc: "Kullandığınız parolaların ne kadar sürede kırılabileceğini hesaplayan güvenlik motoru.", link: "https://password.kaspersky.com/tr/", t1: "Algoritma", v1: "Brute Force Süresi", t2: "Gizlilik", v2: "Uçtan Uca", icon: "fa-unlock-keyhole" },
+            { title: "Yüz Takibi Güvenliği 1", desc: "Google MediaPipe teknolojisi ile yüzdeki 468 farklı noktanın 3D olarak taranması.", link: "https://mediapipe-studio.webapps.google.com/studio/demo/face_landmarker", t1: "Altyapı", v1: "Google AI Edge", t2: "Teknoloji", v2: "Face Mesh", icon: "fa-masks-theater" },
+            { title: "Yüz Takibi Güvenliği 2", desc: "Bilgisayardaki yerel Python kodları kullanılarak hazırlanan kamera takibi betiği.", link: "file:///C:/yuztakip/yuz_takip.py", t1: "Dosya", v1: "Lokal Python (.py)", t2: "Not", v2: "Manuel Başlatın", icon: "fa-laptop-code" },
+
+            // --- YEDEK PROJELER ---
+            { title: "Geliştirme: Yedek Alan 1", desc: "Yeni eklenecek AR veya yazılım projesi için rezerve edilmiş geliştirici alanı.", link: "#", t1: "Durum", v1: "Boş Slot", t2: "Atama", v2: "Bekleniyor", icon: "fa-folder-plus" },
+            { title: "Geliştirme: Yedek Alan 2", desc: "Yeni eklenecek AR veya yazılım projesi için rezerve edilmiş geliştirici alanı.", link: "#", t1: "Durum", v1: "Boş Slot", t2: "Atama", v2: "Bekleniyor", icon: "fa-folder-plus" },
+            { title: "Geliştirme: Yedek Alan 3", desc: "Yeni eklenecek AR veya yazılım projesi için rezerve edilmiş geliştirici alanı.", link: "#", t1: "Durum", v1: "Boş Slot", t2: "Atama", v2: "Bekleniyor", icon: "fa-folder-plus" },
+            { title: "Geliştirme: Yedek Alan 4", desc: "Yeni eklenecek AR veya yazılım projesi için rezerve edilmiş geliştirici alanı.", link: "#", t1: "Durum", v1: "Boş Slot", t2: "Atama", v2: "Bekleniyor", icon: "fa-folder-plus" },
+            { title: "Geliştirme: Yedek Alan 5", desc: "Yeni eklenecek AR veya yazılım projesi için rezerve edilmiş geliştirici alanı.", link: "#", t1: "Durum", v1: "Boş Slot", t2: "Atama", v2: "Bekleniyor", icon: "fa-folder-plus" }
+        ];
+
+        const container = document.getElementById('projectContainer');
+
+        function renderProjects() {
+            container.innerHTML = ''; 
+            
+            projectsData.forEach((project, index) => {
+                const theme = themes[index % themes.length];
+                const idDisplay = (index + 1) < 10 ? '0' + (index + 1) : (index + 1);
+
+                // Target _blank sadece dış linkler için
+                const targetAttr = project.link.startsWith('http') ? 'target="_blank"' : '';
+
+                const cardHTML = `
+                    <div class="project-card" style="border-color: ${theme.rgb};">
+                        <div class="badge" style="background: ${theme.hex}; color: ${theme.text};">
+                            <i class="fa-solid ${project.icon}"></i> DENEYİM ${idDisplay}
+                        </div>
+                        <h2>${project.title}</h2>
+                        <p class="description">
+                            ${project.desc}
+                        </p>
+                        <div class="tech-info" style="border-left-color: ${theme.hex};">
+                            <div>${project.t1}: <span style="color: ${theme.hex}">${project.v1}</span></div>
+                            <div>${project.t2}: <span style="color: ${theme.hex}">${project.v2}</span></div>
+                        </div>
+                        <a href="${project.link}" ${targetAttr} class="btn-launch" style="--hover-bg: ${theme.hex};">Projeyi Başlat</a>
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+        }
+
+        window.onload = renderProjects;
+    </script>
+
+</body>
+</html>
