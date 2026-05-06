@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Çocuklar İçin Hareket Oyunu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --teal:     #00e5cc;
+      --pink:     #ff4081;
+      --yellow:   #ffd600;
+      --green:    #69ff47;
+      --bg:       #0a0f1a;
+      --bg2:      #101826;
+      --border:   #2a4055;
+      --text:     #e0f0ff;
+      --text-dim: #6080a0;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bot: env(safe-area-inset-bottom, 0px);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { 
+      height: 100%; 
+      overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      min-height: 100vh;
+      padding: 10px 10px calc(10px + var(--safe-bot));
+      padding-top: calc(10px + var(--safe-top));
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .tag { font-size:8px; letter-spacing:2px; color:var(--teal); margin-bottom:2px; display:block; }
+    h1 {
+      font-family:'Barlow Condensed',sans-serif;
+      font-size:clamp(20px,5vw,34px); font-weight:700; letter-spacing:2px;
+      color:var(--teal); line-height:1;
+      text-shadow:0 0 18px rgba(0,229,204,.5);
+    }
+    .subtitle {
+      font-size:9px; color:var(--text-dim); letter-spacing:1.5px; margin-top:2px;
+    }
+    .header-badges {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge {
+      font-size:8px; background:var(--bg2); border:1px solid var(--border);
+      padding:3px 8px; letter-spacing:1px; white-space:nowrap;
+      border-radius: 4px;
+    }
+    .badge span { font-size:14px; font-weight:700; }
+    #fps-val { color:var(--yellow); }
+    #cnt-val { color:var(--teal); }
+    #model-badge { color:var(--text-dim); transition:color .4s, border-color .4s; }
+    #model-badge.ready { color:var(--green); border-color:var(--green); text-shadow:0 0 8px rgba(105,255,71,.5); }
+    #model-badge.error { color:#ff1744; border-color:#ff1744; }
+
+    .cam-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      border-radius: 8px;
+      flex: 1;
+    }
+    .canvas-wrap.back-cam {
+      aspect-ratio: 9/16;
+      max-height: 70vh;
+    }
+    @media (max-width:860px) {
+      .canvas-wrap { aspect-ratio: 4/3; }
+      .canvas-wrap.back-cam { aspect-ratio: 3/4; max-height: 65vh; }
+    }
+    #webcam, #output_canvas {
+      position: absolute;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+    }
+    #webcam.mirror {
+      transform: rotateY(180deg);
+      -webkit-transform: rotateY(180deg);
+    }
+    #output_canvas { z-index: 2; }
+
+    .cam-flip-btn {
+      position: absolute;
+      top: 12px; right: 12px; z-index: 20;
+      width: 44px; height: 44px;
+      background: rgba(16,24,38,.85);
+      border: 1px solid var(--teal);
+      color: var(--teal);
+      font-size: 20px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: all .2s;
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+    }
+    .cam-flip-btn.visible { display: flex; }
+    .cam-flip-btn:active { transform: scale(.9) rotate(180deg); background: rgba(0,229,204,.25); }
+
+    .cam-label {
+      position: absolute;
+      bottom: 12px; left: 50%;
+      transform: translateX(-50%);
+      z-index: 15;
+      font-size: 9px; letter-spacing: 2px;
+      color: var(--teal);
+      background: rgba(10,15,26,.75);
+      padding: 4px 10px;
+      border-radius: 12px;
+      pointer-events: none;
+      display: none;
+    }
+    .cam-label.visible { display: block; }
+
+    .cam-controls {
+      display: flex;
+      gap: 8px;
+    }
+    .btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 14px 12px;
+      border: none;
+      cursor: pointer;
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+      transition: all .2s;
+      min-height: 50px;
+      border-radius: 8px;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-shot {
+      background: transparent;
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+    }
+    .btn-shot:hover {
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+
+    .no-cam-warn {
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: var(--yellow);
+      padding: 6px 10px;
+      background: rgba(255,214,0,.08);
+      border: 1px solid rgba(255,214,0,.2);
+      display: none;
+      border-radius: 6px;
+    }
+    .no-cam-warn.visible { display: block; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <span class="tag">EĞLENCELİ HAREKET TAKİBİ</span>
+      <h1>VÜCUT · EL · YÜZ</h1>
+      <p class="subtitle">Kameran açık, hareket et, eğlen!</p>
+    </div>
+    <div class="header-badges">
+      <div class="badge">⚡ <span id="fps-val">0</span> FPS</div>
+      <div class="badge">👥 <span id="cnt-val">0</span> KİŞİ</div>
+      <div class="badge" id="model-badge">🔴 MODELLER YÜKLENİYOR</div>
+    </div>
+  </header>
+
+  <div class="cam-section">
+    <div class="canvas-wrap" id="canvasWrap">
+      <video id="webcam" autoplay playsinline></video>
+      <canvas id="output_canvas"></canvas>
+      <button class="cam-flip-btn" id="btnFlip" title="Kamerayı Çevir">⟳</button>
+      <div class="cam-label" id="camLabel">ÖN KAMERA</div>
+    </div>
+    <div class="no-cam-warn" id="noCamWarn">⚠ Arka kamera bulunamadı, ön kamera kullanılıyor.</div>
+    <div class="cam-controls">
+      <button class="btn btn-shot" id="btnShot">
+        📸 FOTOĞRAF ÇEK
+      </button>
+    </div>
+  </div>
+
+<script type="module">
+
+// ── 0. roundRect polyfill (Safari) ────────────────────────────────────────────
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x,y,w,h,r=0){
+    if(w<2*r)r=w/2; if(h<2*r)r=h/2;
+    this.beginPath();
+    this.moveTo(x+r,y);
+    this.arcTo(x+w,y,  x+w,y+h,r);
+    this.arcTo(x+w,y+h,x,  y+h,r);
+    this.arcTo(x,  y+h,x,  y,  r);
+    this.arcTo(x,  y,  x+w,y,  r);
+    this.closePath(); return this;
+  };
+}
+
+// ── 1. Import MediaPipe ───────────────────────────────────────────────────────
+import {
+  PoseLandmarker, HandLandmarker, FaceLandmarker,
+  FilesetResolver, DrawingUtils
+} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
+
+// ── 2. DOM elemanları ────────────────────────────────────────────────────────
+const video        = document.getElementById("webcam");
+const canvas       = document.getElementById("output_canvas");
+const ctx          = canvas.getContext("2d");
+const btnShot      = document.getElementById("btnShot");
+const btnFlip      = document.getElementById("btnFlip");
+const modelBadge   = document.getElementById("model-badge");
+const fpsVal       = document.getElementById("fps-val");
+const cntVal       = document.getElementById("cnt-val");
+const canvasWrap   = document.getElementById("canvasWrap");
+const camLabel     = document.getElementById("camLabel");
+const noCamWarn    = document.getElementById("noCamWarn");
+let   drawUtils;
+
+// ── 3. Ayarlar ────────────────────────────────────────────────────────────────
+const COLORS = [
+  "#00e5cc", "#ff4081", "#ffd600", "#69ff47",
+  "#e040fb", "#ff6d00"
+];
+const MAX_P = 6;
+const MAX_DIST = 0.3;
+const LOST_TICKS = 30;
+let poseLM, handLM, faceLM;
+let running = false;
+let lastTime = -1;
+let fpsCnt = 0, fpsT = performance.now();
+
+const slots = Array.from({length: MAX_P}, () => ({
+  active: false,
+  cx: 0, cy: 0,
+  age: 0
+}));
+
+let currentFacing = "user";
+let hasMultipleCams = false;
+
+async function checkCameras() {
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    hasMultipleCams = devices.filter(d => d.kind === "videoinput").length > 1;
+  } catch(e) {
+    hasMultipleCams = false;
+  }
+}
+checkCameras();
+
+// ── 4. Modelleri yükle ───────────────────────────────────────────────────────
+async function setupModels() {
+  const vision = await FilesetResolver.forVisionTasks(
+    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+  );
+  poseLM = await PoseLandmarker.createFromOptions(vision, {
+    baseOptions: {
+      modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_heavy/float16/1/pose_landmarker_heavy.task",
+      delegate: "GPU"
+    },
+    runningMode: "VIDEO",
+    numPoses: MAX_P,
+    minPoseDetectionConfidence: 0.5,
+    minPosePresenceConfidence: 0.5,
+    minTrackingConfidence: 0.5
+  });
+  handLM = await HandLandmarker.createFromOptions(vision, {
+    baseOptions: {
+      modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+      delegate: "GPU"
+    },
+    runningMode: "VIDEO",
+    numHands: 4,
+    minHandDetectionConfidence: 0.5,
+    minHandPresenceConfidence: 0.5,
+    minTrackingConfidence: 0.5
+  });
+  faceLM = await FaceLandmarker.createFromOptions(vision, {
+    baseOptions: {
+      modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+      delegate: "GPU"
+    },
+    outputFaceBlendshapes: false,
+    runningMode: "VIDEO",
+    numFaces: MAX_P,
+    minFaceDetectionConfidence: 0.5,
+    minFacePresenceConfidence: 0.5,
+    minTrackingConfidence: 0.5
+  });
+  drawUtils = new DrawingUtils(ctx);
+  modelBadge.textContent = "🟢 MODELLER HAZIR";
+  modelBadge.classList.add("ready");
+}
+
+// ── 5. Çoklu kişi takip mantığı ──────────────────────────────────────────────
+function centroid(lm) {
+  const pts = [lm[11], lm[12], lm[23], lm[24]];
+  return {
+    cx: pts.reduce((s, p) => s + p.x, 0) / 4,
+    cy: pts.reduce((s, p) => s + p.y, 0) / 4
+  };
+}
+
+function matchPoses(lms) {
+  const n = lms.length;
+  const cents = lms.map(centroid);
+  const p2s = new Array(n).fill(-1);
+  const usedSlots = new Array(MAX_P).fill(false);
+
+  const costs = [];
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < MAX_P; j++) {
+      if (!slots[j].active) continue;
+      costs.push({
+        i, j,
+        d: Math.hypot(cents[i].cx - slots[j].cx, cents[i].cy - slots[j].cy)
+      });
+    }
+  }
+  costs.sort((a, b) => a.d - b.d);
+
+  for (const {i, j, d} of costs) {
+    if (p2s[i] !== -1 || usedSlots[j]) continue;
+    if (d < MAX_DIST) {
+      p2s[i] = j;
+      usedSlots[j] = true;
+    }
+  }
+
+  for (let i = 0; i < n; i++) {
+    if (p2s[i] !== -1) continue;
+    for (let j = 0; j < MAX_P; j++) {
+      if (!slots[j].active && !usedSlots[j]) {
+        p2s[i] = j;
+        usedSlots[j] = true;
+        break;
+      }
+    }
+  }
+
+  const seenSlots = new Set(p2s.filter(j => j !== -1));
+  for (let j = 0; j < MAX_P; j++) {
+    if (seenSlots.has(j)) {
+      const pi = p2s.indexOf(j);
+      slots[j].active = true;
+      slots[j].cx = cents[pi].cx;
+      slots[j].cy = cents[pi].cy;
+      slots[j].age = 0;
+    } else if (slots[j].active) {
+      if (++slots[j].age > LOST_TICKS) {
+        slots[j].active = false;
+        slots[j].age = 0;
+      }
+    }
+  }
+  return p2s;
+}
+
+function matchFaces(faceLms, poseLms, pose2slot) {
+  const f2s = new Array(faceLms.length).fill(-1);
+  const used = new Set();
+  for (let fi = 0; fi < faceLms.length; fi++) {
+    const noseTip = faceLms[fi][1];
+    if (!noseTip) continue;
+    let minDist = 0.25;
+    let bestSlot = -1;
+    for (let pi = 0; pi < poseLms.length; pi++) {
+      const si = pose2slot[pi];
+      if (si === -1 || used.has(si)) continue;
+      const poseNose = poseLms[pi][0];
+      if (!poseNose) continue;
+      const d = Math.hypot(noseTip.x - poseNose.x, noseTip.y - poseNose.y);
+      if (d < minDist) {
+        minDist = d;
+        bestSlot = si;
+      }
+    }
+    if (bestSlot !== -1) {
+      f2s[fi] = bestSlot;
+      used.add(bestSlot);
+    }
+  }
+  return f2s;
+}
+
+// ── 6. Yardımcı çizim fonksiyonları ──────────────────────────────────────────
+function labelX(nx) {
+  return currentFacing === "user" ? (1 - nx) * canvas.width : nx * canvas.width;
+}
+
+function drawPlayerTag(lm, color, name) {
+  const mx = (lm[11].x + lm[12].x) / 2;
+  const my = Math.min(lm[11].y, lm[12].y) - 0.07;
+  const x = labelX(mx), y = my * canvas.height;
+  ctx.save();
+  ctx.font = "bold 16px 'Barlow Condensed', sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const tw = ctx.measureText(name).width + 16;
+  ctx.fillStyle = "rgba(10,15,26,0.9)";
+  ctx.roundRect(x - tw/2, y - 11, tw, 24, 6);
+  ctx.fill();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 10;
+  ctx.fillText(name, x, y);
+  ctx.restore();
+}
+
+// ── 7. Ana döngü ─────────────────────────────────────────────────────────────
+function predict() {
+  if (!running) return;
+  fpsCnt++;
+  const now = performance.now();
+  if (now - fpsT >= 500) {
+    fpsVal.textContent = Math.round(fpsCnt * 1000 / (now - fpsT));
+    fpsCnt = 0;
+    fpsT = now;
+  }
+
+  if (lastTime !== video.currentTime) {
+    lastTime = video.currentTime;
+    if (canvas.width !== video.videoWidth) {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.save();
+    if (currentFacing === "user") {
+      ctx.translate(canvas.width, 0);
+      ctx.scale(-1, 1);
+    }
+
+    const pR = poseLM.detectForVideo(video, now);
+    const hR = handLM.detectForVideo(video, now);
+    const fR = faceLM.detectForVideo(video, now);
+
+    const poseLms = pR.landmarks ?? [];
+    const faceLms = fR.faceLandmarks ?? [];
+    const handLms = hR.landmarks ?? [];
+    const handDirs = hR.handednesses ?? hR.handedness ?? [];
+
+    const pose2slot = poseLms.length > 0 ? matchPoses(poseLms) : [];
+    const activeSlots = [...new Set(pose2slot.filter(j => j !== -1))];
+    cntVal.textContent = activeSlots.length;
+
+    const slotFace = {};
+    if (faceLms.length > 0 && poseLms.length > 0) {
+      const f2s = matchFaces(faceLms, poseLms, pose2slot);
+      for (let fi = 0; fi < faceLms.length; fi++) {
+        const s = f2s[fi];
+        if (s !== -1) slotFace[s] = faceLms[fi];
+      }
+    }
+
+    for (let i = 0; i < poseLms.length; i++) {
+      const slotIdx = pose2slot[i];
+      if (slotIdx === -1) continue;
+      const lm = poseLms[i];
+      const color = COLORS[slotIdx % COLORS.length];
+      const name = `OYUNCU ${slotIdx + 1}`;
+
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 14;
+      drawUtils.drawConnectors(lm, PoseLandmarker.POSE_CONNECTIONS, {
+        color: color,
+        lineWidth: 4
+      });
+      drawUtils.drawLandmarks(lm, {
+        color: "#fff",
+        fillColor: color,
+        lineWidth: 1.5,
+        radius: 5
+      });
+      ctx.shadowBlur = 0;
+
+      ctx.restore(); ctx.save();
+      drawPlayerTag(lm, color, name);
+      if (currentFacing === "user") {
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+      }
+
+      const flm = slotFace[slotIdx];
+      if (flm) {
+        ctx.save();
+        ctx.globalAlpha = 0.9;
+        drawUtils.drawConnectors(flm, FaceLandmarker.FACE_LANDMARKS_FACE_OVAL, {
+          color: color, lineWidth: 2
+        });
+        drawUtils.drawConnectors(flm, FaceLandmarker.FACE_LANDMARKS_LIPS, {
+          color: color, lineWidth: 1.5
+        });
+        drawUtils.drawConnectors(flm, FaceLandmarker.FACE_LANDMARKS_LEFT_EYE, {
+          color: "#ffffff", lineWidth: 1.8
+        });
+        drawUtils.drawConnectors(flm, FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE, {
+          color: "#ffffff", lineWidth: 1.8
+        });
+        ctx.restore();
+      }
+    }
+
+    for (let h = 0; h < handLms.length; h++) {
+      const hlm = handLms[h];
+      const dir = handDirs[h];
+      let handLabel = null;
+      if (Array.isArray(dir) && dir.length > 0) handLabel = dir[0].categoryName;
+      else if (dir?.categoryName) handLabel = dir.categoryName;
+      const isRightHand = handLabel === "Left";
+      const isLeftHand = handLabel === "Right";
+
+      const wrist = hlm[0];
+      let bestSlot = 0;
+      let minDist = Infinity;
+      for (let pi = 0; pi < poseLms.length; pi++) {
+        const si = pose2slot[pi];
+        if (si === -1) continue;
+        const plm = poseLms[pi];
+        const distL = Math.hypot(wrist.x - plm[15].x, wrist.y - plm[15].y);
+        const distR = Math.hypot(wrist.x - plm[16].x, wrist.y - plm[16].y);
+        const d = Math.min(distL, distR);
+        if (d < minDist) { minDist = d; bestSlot = si; }
+      }
+      const handColor = COLORS[bestSlot % COLORS.length];
+
+      ctx.shadowColor = handColor;
+      ctx.shadowBlur = 12;
+      drawUtils.drawConnectors(hlm, HandLandmarker.HAND_CONNECTIONS, {
+        color: handColor, lineWidth: 3
+      });
+      drawUtils.drawLandmarks(hlm, {
+        color: "#fff",
+        fillColor: handColor,
+        lineWidth: 1.2,
+        radius: 4
+      });
+      ctx.shadowBlur = 0;
+
+      ctx.restore(); ctx.save();
+      const wx = labelX(wrist.x), wy = wrist.y * canvas.height;
+      ctx.font = "bold 10px 'Space Mono', monospace";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      const label = isLeftHand ? "SOL EL" : (isRightHand ? "SAĞ EL" : "EL");
+      ctx.fillStyle = handColor;
+      ctx.shadowColor = handColor;
+      ctx.shadowBlur = 6;
+      ctx.fillText(label, wx, wy - 6);
+      ctx.restore();
+
+      if (currentFacing === "user") {
+        ctx.save();
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+      }
+    }
+
+    ctx.restore();
+  }
+  requestAnimationFrame(predict);
+}
+
+// ── 8. Kamera başlatma ───────────────────────────────────────────────────────
+async function startCamera(facing = "user") {
+  if (video.srcObject) {
+    video.srcObject.getTracks().forEach(t => t.stop());
+    video.srcObject = null;
+  }
+  noCamWarn.classList.remove("visible");
+
+  const constraints = {
+    video: {
+      facingMode: { ideal: facing },
+      width: { ideal: facing === "environment" ? 1920 : 1280 },
+      height: { ideal: facing === "environment" ? 1080 : 720 }
+    }
+  };
+
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia(constraints);
+  } catch (e) {
+    if (facing === "environment") {
+      noCamWarn.classList.add("visible");
+      currentFacing = "user";
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } }
+      });
+    } else {
+      throw e;
+    }
+  }
+
+  const track = stream.getVideoTracks()[0];
+  const settings = track.getSettings();
+  if (settings.facingMode) currentFacing = settings.facingMode;
+  updateMirror();
+
+  video.srcObject = stream;
+  return new Promise((resolve, reject) => {
+    video.onloadeddata = async () => {
+      try { await video.play(); } catch (e) { console.warn("play hatası:", e); }
+      resolve();
+    };
+    video.onerror = reject;
+  });
+}
+
+function updateMirror() {
+  const isFront = currentFacing === "user";
+  video.classList.toggle("mirror", isFront);
+  canvas.classList.remove("mirror");
+  canvasWrap.classList.toggle("back-cam", !isFront);
+  camLabel.textContent = isFront ? "ÖN KAMERA" : "ARKA KAMERA";
+  camLabel.classList.add("visible");
+  slots.forEach(s => { s.active = false; s.age = 0; });
+  lastTime = -1;
+}
+
+// ── 9. Otomatik başlatma ─────────────────────────────────────────────────────
+(async function autoStart() {
+  try {
+    await setupModels();
+    running = true;
+    await startCamera("user");
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    if (isMobile || hasMultipleCams) btnFlip.classList.add("visible");
+    predict();
+  } catch (e) {
+    modelBadge.textContent = "🔴 KAMERA HATASI";
+    modelBadge.classList.add("error");
+    noCamWarn.classList.add("visible");
+    noCamWarn.textContent = "⚠ " + e.message;
+  }
+})();
+
+// ── 10. Fotoğraf çekme ──────────────────────────────────────────────────────
+btnShot.addEventListener("click", () => {
+  const tmp = document.createElement("canvas");
+  tmp.width = canvas.width;
+  tmp.height = canvas.height;
+  const t = tmp.getContext("2d");
+
+  if (currentFacing === "user") {
+    t.save(); t.translate(tmp.width, 0); t.scale(-1, 1);
+    t.drawImage(video, 0, 0, tmp.width, tmp.height);
+    t.restore();
+    t.save(); t.translate(tmp.width, 0); t.scale(-1, 1);
+    t.drawImage(canvas, 0, 0);
+    t.restore();
+  } else {
+    t.drawImage(video, 0, 0, tmp.width, tmp.height);
+    t.drawImage(canvas, 0, 0);
+  }
+
+  const a = document.createElement("a");
+  a.download = `hareket-oyunu-${Date.now()}.png`;
+  a.href = tmp.toDataURL("image/png");
+  a.click();
+});
+
+// Kamera çevirme
+btnFlip.addEventListener("click", async () => {
+  if (!running) return;
+  btnFlip.style.transform = "rotate(180deg)";
+  setTimeout(() => { btnFlip.style.transform = ""; }, 300);
+  const newFacing = currentFacing === "user" ? "environment" : "user";
+  currentFacing = newFacing;
+  try {
+    await startCamera(currentFacing);
+  } catch (e) {
+    alert("Kamera geçiş hatası: " + e.message);
+  }
+});
+
+// Ekran dönüşünde kamerayı yeniden başlat
+window.addEventListener("orientationchange", () => {
+  if (running) {
+    setTimeout(async () => {
+      try { await startCamera(currentFacing); } catch (e) {}
+    }, 400);
+  }
+});
+
+</script>
+</body>
+</html>

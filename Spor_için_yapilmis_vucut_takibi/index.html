@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Spor Analiz Koçu · Yapay Zeka Antrenör</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --teal: #00e5cc;
+      --teal-dim: #00bfa5;
+      --pink: #ff4081;
+      --yellow: #ffd600;
+      --green: #69ff47;
+      --red: #ff1744;
+      --orange: #ff9100;
+      --bg: #050a0e;
+      --bg2: #0a1520;
+      --bg3: #0f1e2e;
+      --border: #1a3040;
+      --text: #cce8e0;
+      --text-dim: #5a8a80;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bot: env(safe-area-inset-bottom, 0px);
+    }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html,
+    body {
+      height: 100%;
+      overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      min-height: 100vh;
+      padding: 8px 8px calc(8px + var(--safe-bot));
+      padding-top: calc(8px + var(--safe-top));
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    /* HEADER */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-icon {
+      font-size: 26px;
+    }
+    h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(15px, 3.5vw, 22px);
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--teal);
+      line-height: 1;
+      text-shadow: 0 0 12px rgba(0, 229, 204, 0.4);
+    }
+    .subtitle {
+      font-size: 7px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      display: block;
+    }
+    .header-stats {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+    .stat-pill {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      padding: 3px 8px;
+      font-size: 8px;
+      letter-spacing: 1px;
+      white-space: nowrap;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .stat-pill span {
+      font-size: 12px;
+      font-weight: 700;
+    }
+    #fps-val {
+      color: var(--yellow);
+    }
+    #time-val {
+      color: var(--teal);
+    }
+    #cal-val {
+      color: var(--orange);
+    }
+    #model-badge {
+      color: var(--text-dim);
+      transition: color 0.4s, border-color 0.4s;
+      font-size: 7px;
+    }
+    #model-badge.ready {
+      color: var(--green);
+      border-color: var(--green);
+      text-shadow: 0 0 6px rgba(105, 255, 71, 0.5);
+    }
+    #model-badge.error {
+      color: var(--red);
+      border-color: var(--red);
+    }
+
+    /* EGZERSİZ SEÇİCİ */
+    .ex-selector-container {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .ex-category-label {
+      font-size: 7px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      padding-left: 4px;
+    }
+    .exercise-selector {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding: 2px 0;
+    }
+    .exercise-selector::-webkit-scrollbar {
+      display: none;
+    }
+    .ex-btn {
+      flex-shrink: 0;
+      padding: 6px 11px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-radius: 6px;
+      white-space: nowrap;
+      user-select: none;
+      -webkit-user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .ex-btn:active {
+      transform: scale(0.96);
+    }
+    .ex-btn.active {
+      background: var(--teal);
+      color: var(--bg);
+      border-color: var(--teal);
+      box-shadow: 0 0 12px rgba(0, 229, 204, 0.35);
+      font-weight: 700;
+    }
+    .ex-btn .ex-icon {
+      font-size: 14px;
+    }
+
+    /* AYAR BUTONU */
+    .settings-btn {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .settings-btn:hover {
+      border-color: var(--yellow);
+      color: var(--yellow);
+    }
+
+    /* LAYOUT */
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 370px;
+      gap: 8px;
+      align-items: start;
+      flex: 1;
+      min-height: 0;
+    }
+    @media (max-width: 860px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* KAMERA */
+    .cam-section {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      border-radius: 8px;
+    }
+    @media (min-width: 861px) {
+      .canvas-wrap {
+        max-height: 68vh;
+      }
+    }
+    .grid-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background-image: linear-gradient(rgba(0, 229, 204, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 229, 204, 0.025) 1px, transparent 1px);
+      background-size: 45px 45px;
+    }
+    .corner {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      z-index: 10;
+    }
+    .corner.tl {
+      top: 4px;
+      left: 4px;
+      border-top: 2px solid var(--teal);
+      border-left: 2px solid var(--teal);
+    }
+    .corner.tr {
+      top: 4px;
+      right: 4px;
+      border-top: 2px solid var(--teal);
+      border-right: 2px solid var(--teal);
+    }
+    .corner.bl {
+      bottom: 4px;
+      left: 4px;
+      border-bottom: 2px solid var(--teal);
+      border-left: 2px solid var(--teal);
+    }
+    .corner.br {
+      bottom: 4px;
+      right: 4px;
+      border-bottom: 2px solid var(--teal);
+      border-right: 2px solid var(--teal);
+    }
+    #webcam,
+    #output_canvas {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+    }
+    #webcam.mirror {
+      transform: rotateY(180deg);
+      -webkit-transform: rotateY(180deg);
+    }
+    #output_canvas {
+      z-index: 2;
+    }
+    .cam-flip-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      z-index: 20;
+      width: 34px;
+      height: 34px;
+      background: rgba(10, 21, 32, 0.85);
+      border: 1px solid var(--teal-dim);
+      color: var(--teal);
+      font-size: 16px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: all 0.2s;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .cam-flip-btn.visible {
+      display: flex;
+    }
+    .cam-flip-btn:active {
+      transform: scale(0.9) rotate(180deg);
+      background: rgba(0, 229, 204, 0.25);
+    }
+    @media (min-width: 861px) {
+      .cam-flip-btn {
+        display: none !important;
+      }
+    }
+    .cam-label {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 15;
+      font-size: 7px;
+      letter-spacing: 2px;
+      color: var(--teal-dim);
+      background: rgba(5, 10, 14, 0.7);
+      padding: 2px 7px;
+      pointer-events: none;
+      display: none;
+      border-radius: 4px;
+    }
+    .cam-label.visible {
+      display: block;
+    }
+    .placeholder {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: opacity 0.5s;
+    }
+    .placeholder.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .ph-icon {
+      font-size: 40px;
+      color: var(--border);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,
+      100% {
+        opacity: 0.3;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.7;
+        transform: scale(1.05);
+      }
+    }
+    .placeholder p {
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      text-align: center;
+    }
+    .cam-controls {
+      display: flex;
+      gap: 5px;
+    }
+    .btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 9px 10px;
+      border: none;
+      cursor: pointer;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 1px;
+      font-weight: 700;
+      transition: all 0.2s;
+      min-height: 40px;
+      border-radius: 8px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .btn:active {
+      transform: scale(0.97);
+    }
+    .btn-reset {
+      background: transparent;
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+    }
+    .btn-reset:hover {
+      border-color: var(--teal-dim);
+      color: var(--teal);
+    }
+    .btn-shot {
+      background: var(--bg3);
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+    }
+    .btn-shot:hover {
+      border-color: var(--teal-dim);
+      color: var(--teal);
+    }
+    .btn-voice {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 16px;
+      min-width: 40px;
+      flex: 0;
+    }
+    .btn-voice.on {
+      border-color: var(--yellow);
+      color: var(--yellow);
+      background: rgba(255, 214, 0, 0.1);
+    }
+
+    /* SAĞ PANEL */
+    .metrics-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: calc(100vh - 170px);
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    @media (max-width: 860px) {
+      .metrics-panel {
+        max-height: none;
+        overflow-y: visible;
+      }
+    }
+    .metrics-panel::-webkit-scrollbar {
+      width: 3px;
+    }
+    .metrics-panel::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+    .stat-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      animation: cardIn 0.3s ease;
+    }
+    @keyframes cardIn {
+      from {
+        opacity: 0;
+        transform: translateY(-4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .card-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--teal);
+      margin-bottom: 8px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: space-between;
+    }
+    .card-title .title-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .card-title .icon {
+      font-size: 17px;
+    }
+    .big-number {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 44px;
+      font-weight: 900;
+      color: var(--teal);
+      line-height: 1;
+      text-shadow: 0 0 18px rgba(0, 229, 204, 0.5);
+      text-align: center;
+    }
+    .big-label {
+      font-size: 7px;
+      letter-spacing: 2px;
+      color: var(--text-dim);
+      text-align: center;
+      margin-top: 2px;
+    }
+    .two-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .mini-stat {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      padding: 7px;
+      border-radius: 6px;
+      text-align: center;
+    }
+    .mini-stat .val {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .mini-stat .lbl {
+      font-size: 7px;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+    }
+    .form-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px;
+      background: var(--bg3);
+      border-radius: 6px;
+      margin-top: 4px;
+    }
+    .form-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .form-dot.good {
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+    .form-dot.warn {
+      background: var(--yellow);
+      box-shadow: 0 0 8px var(--yellow);
+    }
+    .form-dot.bad {
+      background: var(--red);
+      box-shadow: 0 0 8px var(--red);
+    }
+    .form-msg {
+      font-size: 10px;
+      letter-spacing: 0.5px;
+      color: var(--text);
+    }
+    .progress-wrap {
+      height: 5px;
+      background: var(--bg);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 3px;
+    }
+    .progress-bar {
+      height: 100%;
+      background: var(--teal);
+      border-radius: 3px;
+      transition: width 0.3s;
+      width: 0%;
+    }
+    .set-row {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+    }
+    .set-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      font-weight: 700;
+      color: var(--text-dim);
+    }
+    .set-dot.done {
+      background: var(--teal);
+      color: var(--bg);
+      border-color: var(--teal);
+    }
+    .set-dot.current {
+      border-color: var(--yellow);
+      color: var(--yellow);
+      animation: blink2 1s infinite;
+    }
+    @keyframes blink2 {
+      0%,
+      100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.4;
+      }
+    }
+    #no-person {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 20px;
+      color: var(--text-dim);
+      font-size: 10px;
+      letter-spacing: 1px;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+    }
+    #no-person .icon {
+      font-size: 28px;
+      opacity: 0.5;
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.visible {
+      display: flex;
+    }
+    .modal {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      width: 90%;
+      max-width: 380px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .modal h3 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px;
+      color: var(--teal);
+      letter-spacing: 2px;
+      text-align: center;
+    }
+    .modal label {
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+    }
+    .modal input {
+      width: 60px;
+      padding: 6px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      text-align: center;
+      border-radius: 6px;
+    }
+    .modal .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal button {
+      padding: 8px 16px;
+      border: none;
+      cursor: pointer;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1px;
+      font-weight: 700;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .modal .btn-save {
+      background: var(--teal);
+      color: var(--bg);
+      flex: 1;
+    }
+    .modal .btn-close {
+      background: transparent;
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-area">
+      <span class="logo-icon">🏋️</span>
+      <div>
+        <h1>SPOR ANALİZ KOÇU</h1>
+        <span class="subtitle">Yapay zeka ile form kontrolü · tekrar sayacı</span>
+      </div>
+    </div>
+    <div class="header-stats">
+      <div class="stat-pill">⏱ <span id="time-val">00:00</span></div>
+      <div class="stat-pill">🔥 <span id="cal-val">0</span> kcal</div>
+      <div class="stat-pill">FPS <span id="fps-val">0</span></div>
+      <div class="stat-pill" id="model-badge">● MODEL</div>
+    </div>
+  </header>
+
+  <!-- EGZERSİZ SEÇİCİ -->
+  <div class="ex-selector-container">
+    <div class="ex-category-label">🏃 VÜCUT AĞIRLIĞI</div>
+    <div class="exercise-selector" id="bodyweightSelector"></div>
+    <div class="ex-category-label" style="margin-top:2px;">🏋️ ALETLİ EGZERSİZLER</div>
+    <div class="exercise-selector" id="equipmentSelector"></div>
+  </div>
+
+  <div class="layout">
+    <div class="cam-section">
+      <div class="canvas-wrap" id="canvasWrap">
+        <video id="webcam" autoplay playsinline></video>
+        <canvas id="output_canvas"></canvas>
+        <div class="grid-overlay"></div>
+        <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+        <button class="cam-flip-btn" id="btnFlip" title="Kamerayı Çevir">⟳</button>
+        <div class="cam-label" id="camLabel">ÖN KAMERA</div>
+        <div class="placeholder hidden" id="placeholder">
+          <div class="ph-icon">📷</div>
+          <p>Kamera başlatılıyor...</p>
+        </div>
+      </div>
+      <div id="noCamWarn" style="display:none;font-size:8px;color:var(--yellow);padding:3px 6px;background:rgba(255,214,0,.08);border:1px solid rgba(255,214,0,.2);border-radius:4px;">⚠ Arka kamera bulunamadı, ön kamera kullanılıyor.</div>
+      <div class="cam-controls">
+        <button class="btn btn-reset" id="btnReset">↺ SIFIRLA</button>
+        <button class="btn btn-shot" id="btnShot">📸 GÖRÜNTÜ</button>
+        <button class="btn btn-voice" id="btnVoice" title="Sesli koçluk">🔊</button>
+        <button class="settings-btn" id="btnSettings" title="Set/Tekrar Ayarları">⚙</button>
+      </div>
+    </div>
+
+    <div class="metrics-panel" id="metricsPanel">
+      <div id="no-person">
+        <div class="icon">🧑</div>
+        <p>Kameraya doğru konumlanın</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- AYAR MODAL -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal">
+      <h3>⚙ SET & TEKRAR AYARLARI</h3>
+      <p style="font-size:10px;color:var(--text-dim);text-align:center;" id="modalExName">Squat</p>
+      <div class="row">
+        <label>Hedef Set Sayısı</label>
+        <input type="number" id="inputSets" min="1" max="10" value="3" />
+      </div>
+      <div class="row">
+        <label>Set Başına Tekrar</label>
+        <input type="number" id="inputReps" min="1" max="100" value="12" />
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-save" id="btnSaveSettings">💾 KAYDET</button>
+        <button class="btn-close" id="btnCloseModal">KAPAT</button>
+      </div>
+    </div>
+  </div>
+
+<script type="module">
+
+// ── polyfill ──────────────────────────────────────────────────────────────────
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r = 0) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    this.beginPath();
+    this.moveTo(x + r, y);
+    this.arcTo(x + w, y, x + w, y + h, r);
+    this.arcTo(x + w, y + h, x, y + h, r);
+    this.arcTo(x, y + h, x, y, r);
+    this.arcTo(x, y, x + w, y, r);
+    this.closePath();
+    return this;
+  };
+}
+
+// ── IMPORTS ───────────────────────────────────────────────────────────────────
+import {
+  PoseLandmarker,
+  FilesetResolver,
+  DrawingUtils
+} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
+
+// ── DOM ──────────────────────────────────────────────────────────────────────
+const video = document.getElementById("webcam");
+const canvas = document.getElementById("output_canvas");
+const ctx = canvas.getContext("2d");
+const btnFlip = document.getElementById("btnFlip");
+const btnShot = document.getElementById("btnShot");
+const btnReset = document.getElementById("btnReset");
+const btnVoice = document.getElementById("btnVoice");
+const btnSettings = document.getElementById("btnSettings");
+const placeholder = document.getElementById("placeholder");
+const modelBadge = document.getElementById("model-badge");
+const fpsVal = document.getElementById("fps-val");
+const timeVal = document.getElementById("time-val");
+const calVal = document.getElementById("cal-val");
+const metricsPanel = document.getElementById("metricsPanel");
+const noPersonEl = document.getElementById("no-person");
+const canvasWrap = document.getElementById("canvasWrap");
+const camLabel = document.getElementById("camLabel");
+const noCamWarn = document.getElementById("noCamWarn");
+const settingsModal = document.getElementById("settingsModal");
+const inputSets = document.getElementById("inputSets");
+const inputReps = document.getElementById("inputReps");
+const modalExName = document.getElementById("modalExName");
+const btnSaveSettings = document.getElementById("btnSaveSettings");
+const btnCloseModal = document.getElementById("btnCloseModal");
+const bodyweightSelector = document.getElementById("bodyweightSelector");
+const equipmentSelector = document.getElementById("equipmentSelector");
+
+let drawUtils;
+let poseLM;
+let running = false;
+let lastTime = -1;
+let fpsCnt = 0;
+let fpsT = performance.now();
+let currentFacing = "user";
+let hasMultipleCams = false;
+let voiceEnabled = false;
+
+// ── EGZERSİZ VERİTABANI ──────────────────────────────────────────────────────
+const EXERCISE_DB = {
+  // Vücut ağırlığı
+  squat: { name: "Squat", icon: "🏋️", category: "bodyweight", targetReps: 12, targetSets: 3, calPerMin: 7 },
+  pushup: { name: "Şınav", icon: "💪", category: "bodyweight", targetReps: 15, targetSets: 3, calPerMin: 5 },
+  plank: { name: "Plank", icon: "🧘", category: "bodyweight", targetReps: 60, targetSets: 1, calPerMin: 3, isTime: true },
+  lunge: { name: "Lunge", icon: "🦵", category: "bodyweight", targetReps: 10, targetSets: 3, calPerMin: 6 },
+  jumpingjack: { name: "Jumping Jack", icon: "⭐", category: "bodyweight", targetReps: 20, targetSets: 3, calPerMin: 8 },
+  crunch: { name: "Mekik", icon: "🔼", category: "bodyweight", targetReps: 15, targetSets: 3, calPerMin: 4 },
+  mountain_climber: { name: "Mountain Climber", icon: "⛰️", category: "bodyweight", targetReps: 20, targetSets: 3, calPerMin: 9 },
+  burpee: { name: "Burpee", icon: "💥", category: "bodyweight", targetReps: 10, targetSets: 3, calPerMin: 10 },
+  glute_bridge: { name: "Glute Bridge", icon: "🌉", category: "bodyweight", targetReps: 15, targetSets: 3, calPerMin: 5 },
+  high_knees: { name: "High Knees", icon: "🦿", category: "bodyweight", targetReps: 30, targetSets: 3, calPerMin: 8 },
+  leg_raise: { name: "Leg Raise", icon: "🦵", category: "bodyweight", targetReps: 12, targetSets: 3, calPerMin: 4 },
+  russian_twist: { name: "Russian Twist", icon: "🌀", category: "bodyweight", targetReps: 20, targetSets: 3, calPerMin: 5 },
+  superman: { name: "Superman", icon: "🦸", category: "bodyweight", targetReps: 12, targetSets: 3, calPerMin: 3 },
+  tricep_dip: { name: "Tricep Dip (Sand.)", icon: "🪑", category: "bodyweight", targetReps: 12, targetSets: 3, calPerMin: 5 },
+  // Aletli
+  dumbbell_curl: { name: "Dumbbell Curl", icon: "💪", category: "equipment", targetReps: 12, targetSets: 3, calPerMin: 5 },
+  shoulder_press: { name: "Shoulder Press", icon: "🏋️", category: "equipment", targetReps: 10, targetSets: 3, calPerMin: 6 },
+  lateral_raise: { name: "Lateral Raise", icon: "🦅", category: "equipment", targetReps: 12, targetSets: 3, calPerMin: 4 },
+  deadlift: { name: "Deadlift", icon: "🏋️‍♂️", category: "equipment", targetReps: 8, targetSets: 3, calPerMin: 8 },
+  bent_over_row: { name: "Bent Over Row", icon: "🚣", category: "equipment", targetReps: 10, targetSets: 3, calPerMin: 6 },
+  dumbbell_squat: { name: "Dumbbell Squat", icon: "🏋️", category: "equipment", targetReps: 12, targetSets: 3, calPerMin: 7 },
+  kb_swing: { name: "Kettlebell Swing", icon: "🔔", category: "equipment", targetReps: 15, targetSets: 3, calPerMin: 9 },
+};
+
+// Varsayılan konfigürasyonu localStorage'dan yükle
+function loadExerciseConfigs() {
+  try {
+    const saved = localStorage.getItem("spor_analiz_config");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      for (const [key, val] of Object.entries(parsed)) {
+        if (EXERCISE_DB[key]) {
+          EXERCISE_DB[key].targetReps = val.targetReps ?? EXERCISE_DB[key].targetReps;
+          EXERCISE_DB[key].targetSets = val.targetSets ?? EXERCISE_DB[key].targetSets;
+        }
+      }
+    }
+  } catch (e) {}
+}
+loadExerciseConfigs();
+
+function saveExerciseConfigs() {
+  const obj = {};
+  for (const [key, ex] of Object.entries(EXERCISE_DB)) {
+    obj[key] = { targetReps: ex.targetReps, targetSets: ex.targetSets };
+  }
+  localStorage.setItem("spor_analiz_config", JSON.stringify(obj));
+}
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let currentExercise = "squat";
+let repCount = 0;
+let setCount = 1;
+let repState = "up";
+let goodReps = 0;
+let badReps = 0;
+let formScore = 100;
+let formMessages = [];
+let plankStartTime = null;
+let plankHoldDuration = 0;
+let lastPlankCheck = 0;
+let jumpingJackState = "closed";
+let jumpingJackCount = 0;
+let burpeePhase = "standing"; // standing | squat | plank | pushup | jump
+let exerciseStartTime = Date.now();
+let totalCalories = 0;
+let lastCalorieUpdate = Date.now();
+
+function getConfig() { return EXERCISE_DB[currentExercise]; }
+
+// ── KAMERA ───────────────────────────────────────────────────────────────────
+async function checkCameras() {
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    hasMultipleCams = devices.filter(d => d.kind === "videoinput").length > 1;
+  } catch (e) { hasMultipleCams = false; }
+}
+checkCameras();
+
+async function startCamera(facing = "user") {
+  video.srcObject?.getTracks().forEach(t => t.stop());
+  video.srcObject = null;
+  noCamWarn.style.display = "none";
+  const isBack = facing === "environment";
+  const constraints = {
+    video: {
+      facingMode: { ideal: facing },
+      width: { ideal: isBack ? 1920 : 1280 },
+      height: { ideal: isBack ? 1080 : 720 },
+    }
+  };
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia(constraints);
+  } catch (e) {
+    if (facing === "environment") {
+      noCamWarn.style.display = "block";
+      currentFacing = "user";
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } }
+      });
+    } else { throw e; }
+  }
+  const track = stream.getVideoTracks()[0];
+  if (track.getSettings().facingMode) currentFacing = track.getSettings().facingMode;
+  updateMirror();
+  video.srcObject = stream;
+  return new Promise((res, rej) => {
+    video.onloadeddata = async () => { try { await video.play(); } catch (e) {} res(); };
+    video.onerror = rej;
+  });
+}
+function updateMirror() {
+  const isFront = currentFacing === "user";
+  video.classList.toggle("mirror", isFront);
+  canvas.classList.remove("mirror");
+  canvasWrap.classList.toggle("back-cam", !isFront);
+  camLabel.textContent = isFront ? "ÖN KAMERA" : "ARKA KAMERA";
+  camLabel.classList.add("visible");
+}
+
+// ── MODELS ───────────────────────────────────────────────────────────────────
+async function setupModels() {
+  const vision = await FilesetResolver.forVisionTasks(
+    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+  );
+  poseLM = await PoseLandmarker.createFromOptions(vision, {
+    baseOptions: {
+      modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_heavy/float16/1/pose_landmarker_heavy.task",
+      delegate: "GPU"
+    },
+    runningMode: "VIDEO", numPoses: 1,
+    minPoseDetectionConfidence: 0.5, minPosePresenceConfidence: 0.5, minTrackingConfidence: 0.5
+  });
+  drawUtils = new DrawingUtils(ctx);
+  modelBadge.textContent = "● HAZIR";
+  modelBadge.classList.add("ready");
+}
+
+// ── GEOMETRY ─────────────────────────────────────────────────────────────────
+function angle(A, B, C) {
+  const bax = A.x - B.x, bay = A.y - B.y;
+  const bcx = C.x - B.x, bcy = C.y - B.y;
+  const mag = Math.hypot(bax, bay) * Math.hypot(bcx, bcy);
+  if (!mag) return null;
+  return Math.round(Math.acos(Math.max(-1, Math.min(1, (bax * bcx + bay * bcy) / mag))) * 180 / Math.PI);
+}
+function dist(A, B) { return Math.hypot(A.x - B.x, A.y - B.y); }
+function mid(A, B) { return { x: (A.x + B.x) / 2, y: (A.y + B.y) / 2 }; }
+
+// ── EXERCISE ANALYZERS ───────────────────────────────────────────────────────
+function analyzeSquat(lm) {
+  const kneeL = angle(lm[23], lm[25], lm[27]), kneeR = angle(lm[24], lm[26], lm[28]);
+  const avgKnee = (kneeL !== null && kneeR !== null) ? Math.round((kneeL + kneeR) / 2) : null;
+  const hip = mid(lm[23], lm[24]), shoulder = mid(lm[11], lm[12]);
+  const backAngle = angle(lm[11], lm[23], lm[25]);
+  const msgs = []; let q = 100;
+  if (avgKnee !== null) {
+    if (avgKnee < 70) { msgs.push("Çok alçaldınız"); q -= 25; }
+    else if (avgKnee > 110) { msgs.push("Daha alçalın"); q -= 20; }
+    else if (avgKnee >= 80 && avgKnee <= 100) msgs.push("✅ Mükemmel derinlik");
+    else msgs.push("Derinlik idare eder");
+  }
+  if (backAngle !== null && backAngle < 50) { msgs.push("Sırt fazla eğik"); q -= 20; }
+  return { angles: { avgKnee }, messages: msgs, quality: Math.max(0, q) };
+}
+function analyzePushup(lm) {
+  const elL = angle(lm[11], lm[13], lm[15]), elR = angle(lm[12], lm[14], lm[16]);
+  const avgElbow = (elL !== null && elR !== null) ? Math.round((elL + elR) / 2) : null;
+  const bodyLine = angle(mid(lm[11], lm[12]), mid(lm[23], lm[24]), mid(lm[27], lm[28]));
+  const msgs = []; let q = 100;
+  if (avgElbow !== null) {
+    if (avgElbow < 60) { msgs.push("Çok alçaldınız"); q -= 20; }
+    else if (avgElbow > 130) { msgs.push("Daha inin, 90° hedef"); q -= 25; }
+    else if (avgElbow >= 80 && avgElbow <= 100) msgs.push("✅ Mükemmel derinlik");
+    else msgs.push("Derinlik idare eder");
+  }
+  if (bodyLine !== null) {
+    if (bodyLine < 160) { msgs.push("Bel çöküyor"); q -= 30; }
+    else if (bodyLine > 185) { msgs.push("Kalça havada"); q -= 25; }
+    else msgs.push("✅ Vücut düzgün");
+  }
+  return { angles: { avgElbow }, messages: msgs, quality: Math.max(0, q) };
+}
+function analyzePlank(lm) {
+  const bodyAngle = angle(mid(lm[11], lm[12]), mid(lm[23], lm[24]), mid(lm[27], lm[28]));
+  const msgs = []; let q = 100;
+  if (bodyAngle !== null) {
+    if (bodyAngle < 165) { msgs.push("Kalça çöküyor"); q -= 35; }
+    else if (bodyAngle > 190) { msgs.push("Kalça havada"); q -= 30; }
+    else if (bodyAngle >= 170 && bodyAngle <= 185) msgs.push("✅ Mükemmel plank");
+    else msgs.push("Form idare eder");
+  }
+  return { angles: { bodyAngle }, messages: msgs, quality: Math.max(0, q) };
+}
+function analyzeLunge(lm) {
+  const frontKnee = angle(lm[23], lm[25], lm[27]), backKnee = angle(lm[24], lm[26], lm[28]);
+  const torso = angle(lm[11], lm[23], lm[25]);
+  const msgs = []; let q = 100;
+  if (frontKnee !== null) {
+    if (frontKnee < 70) { msgs.push("Ön diz çok bükülü"); q -= 25; }
+    else if (frontKnee > 110) { msgs.push("Ön diz yetersiz"); q -= 20; }
+    else if (frontKnee >= 80 && frontKnee <= 100) msgs.push("✅ Ön diz ideal");
+  }
+  if (backKnee !== null && backKnee > 140) { msgs.push("Arka diz indirin"); q -= 15; }
+  if (torso !== null && torso < 60) { msgs.push("Gövde eğik"); q -= 20; }
+  return { angles: { frontKnee }, messages: msgs, quality: Math.max(0, q) };
+}
+function analyzeJumpingJack(lm) {
+  const armSpread = dist(lm[11], lm[12]), legSpread = dist(lm[27], lm[28]);
+  const armOpen = armSpread > 0.35, legOpen = legSpread > 0.3;
+  const msgs = []; let q = 100;
+  if (armOpen && legOpen) { msgs.push("✅ Açık"); q = 95; }
+  else if (!armOpen && !legOpen) { msgs.push("Kapalı"); q = 95; }
+  else if (armOpen && !legOpen) { msgs.push("Kollar açık bacaklar kapalı"); q = 60; }
+  else if (!armOpen && legOpen) { msgs.push("Bacaklar açık kollar kapalı"); q = 60; }
+  return { angles: { armSpread, legSpread }, messages: msgs, quality: q, extra: { armOpen, legOpen } };
+}
+function analyzeCrunch(lm) {
+  const torsoAngle = angle(lm[11], lm[23], lm[25]); // omuz-kalça-diz
+  const msgs = []; let q = 100;
+  if (torsoAngle !== null) {
+    if (torsoAngle > 120) { msgs.push("Daha çok kalkın"); q -= 25; }
+    else if (torsoAngle < 60) { msgs.push("Fazla kalktınız"); q -= 20; }
+    else if (torsoAngle >= 70 && torsoAngle <= 100) msgs.push("✅ İdeal mekik");
+    else msgs.push("İdare eder");
+  }
+  return { angles: { torsoAngle }, messages: msgs, quality: Math.max(0, q) };
+}
+function analyzeMountainClimber(lm) {
+  const kneeDist = Math.min(dist(lm[25], lm[11]), dist(lm[26], lm[12]));
+  const msgs = []; let q = 100;
+  if (kneeDist > 0.35) { msgs.push("Dizleri daha çok çekin"); q -= 20; }
+  else if (kneeDist < 0.15) msgs.push("✅ İyi çekme");
+  else msgs.push("Normal");
+  return { angles: { kneeDist }, messages: msgs, quality: Math.max(0, q) };
+}
+function analyzeBurpee(lm) {
+  const kneeAngle = angle(mid(lm[23], lm[24]), mid(lm[25], lm[26]), mid(lm[27], lm[28]));
+  const bodyAngle = angle(mid(lm[11], lm[12]), mid(lm[23], lm[24]), mid(lm[27], lm[28]));
+  const msgs = []; let q = 100;
+  if (kneeAngle !== null && kneeAngle < 80) msgs.push("Squat fazı");
+  if (bodyAngle !== null && bodyAngle > 160) msgs.push("Plank fazı");
+  return { angles: { kneeAngle, bodyAngle }, messages: msgs.length ? msgs : ["Ayakta"], quality: q };
+}
+function analyzeGluteBridge(lm) {
+  const hipAngle = angle(lm[11], lm[23], lm[25]);
+  const msgs = []; let q = 100;
+  if (hipAngle !== null) {
+    if (hipAngle < 140) { msgs.push("Kalçayı yükseltin"); q -= 30; }
+    else if (hipAngle > 175) { msgs.push("Çok yükseldi"); q -= 20; }
+    else if (hipAngle >= 155 && hipAngle <= 170) msgs.push("✅ İdeal köprü");
+    else msgs.push("İdare eder");
+  }
+  return { angles: { hipAngle }, messages: msgs, quality: Math.max(0, q) };
+}
+function analyzeHighKnees(lm) {
+  const kneeHeight = Math.max(dist(lm[25], lm[23]), dist(lm[26], lm[24]));
+  const msgs = []; let q = 100;
+  if (kneeHeight > 0.3) msgs.push("✅ Dizler yukarıda");
+  else if (kneeHeight < 0.15) { msgs.push("Dizleri yükseltin"); q -= 30; }
+  else msgs.push("Normal");
+  return { angles: { kneeHeight }, messages: msgs, quality: Math.max(0, q) };
+}
+function analyzeLegRaise(lm) {
+  const hipAngle = angle(lm[11], lm[23], lm[27]);
+  const msgs = []; let q = 100;
+  if (hipAngle !== null) {
+    if (hipAngle > 120) { msgs.push("Bacakları indirin"); q -= 25; }
+    else if (hipAngle < 50) msgs.push("✅ Bacaklar yukarıda");
+    else msgs.push("Normal");
+  }
+  return { angles: { hipAngle }, messages: msgs, quality: Math.max(0, q) };
+}
+function analyzeRussianTwist(lm) {
+  const shoulderRot = Math.abs(lm[11].x - lm[12].x);
+  const msgs = []; let q = 100;
+  if (shoulderRot > 0.2) msgs.push("✅ Dönüş var");
+  else msgs.push("Daha çok dönün");
+  return { angles: { shoulderRot }, messages: msgs, quality: q };
+}
+function analyzeSuperman(lm) {
+  const backExt = angle(lm[11], lm[23], lm[25]);
+  const msgs = []; let q = 100;
+  if (backExt !== null && backExt > 160) { msgs.push("✅ İyi ekstansiyon"); }
+  else if (backExt !== null && backExt < 130) { msgs.push("Daha çok kalkın"); q -= 25; }
+  return { angles: { backExt }, messages: msgs, quality: Math.max(0, q) };
+}
+function analyzeTricepDip(lm) {
+  const elL = angle(lm[11], lm[13], lm[15]), elR = angle(lm[12], lm[14], lm[16]);
+  const avgElbow = (elL !== null && elR !== null) ? Math.round((elL + elR) / 2) : null;
+  const msgs = []; let q = 100;
+  if (avgElbow !== null) {
+    if (avgElbow < 60) { msgs.push("Çok alçaldınız"); q -= 25; }
+    else if (avgElbow > 130) { msgs.push("Daha inin"); q -= 20; }
+    else if (avgElbow >= 80 && avgElbow <= 100) msgs.push("✅ İdeal dip");
+  }
+  return { angles: { avgElbow }, messages: msgs, quality: Math.max(0, q) };
+}
+// Aletli analizler (vücut formuna bakar, aleti görmez)
+function analyzeDumbbellCurl(lm) {
+  const elL = angle(lm[11], lm[13], lm[15]), elR = angle(lm[12], lm[14], lm[16]);
+  const avgElbow = (elL !== null && elR !== null) ? Math.round((elL + elR) / 2) : null;
+  const shoulderStability = Math.abs((lm[11].y + lm[12].y) / 2 - (lm[13].y + lm[14].y) / 2);
+  const msgs = []; let q = 100;
+  if (avgElbow !== null) {
+    if (avgElbow < 40) msgs.push("✅ Tam kıvrım");
+    else if (avgElbow > 120) msgs.push("Kolu indirin");
+    else msgs.push("Normal");
+  }
+  if (shoulderStability > 0.08) { msgs.push("Omuz sabit değil"); q -= 25; }
+  return { angles: { avgElbow }, messages: msgs, quality: Math.max(0, q) };
+}
+function analyzeShoulderPress(lm) {
+  const elL = angle(lm[11], lm[13], lm[15]), elR = angle(lm[12], lm[14], lm[16]);
+  const avgElbow = (elL !== null && elR !== null) ? Math.round((elL + elR) / 2) : null;
+  const msgs = []; let q = 100;
+  if (avgElbow !== null) {
+    if (avgElbow > 150) msgs.push("✅ Kollar yukarıda");
+    else if (avgElbow < 90) { msgs.push("Kolları kaldırın"); q -= 25; }
+  }
+  return { angles: { avgElbow }, messages: msgs, quality: Math.max(0, q) };
+}
+function analyzeLateralRaise(lm) {
+  const armAngleL = angle({ x: lm[11].x, y: lm[11].y - 0.1 }, lm[11], lm[13]);
+  const armAngleR = angle({ x: lm[12].x, y: lm[12].y - 0.1 }, lm[12], lm[14]);
+  const avgArm = (armAngleL !== null && armAngleR !== null) ? Math.round((armAngleL + armAngleR) / 2) : null;
+  const msgs = []; let q = 100;
+  if (avgArm !== null && avgArm > 60) msgs.push("✅ Kollar yanda");
+  else msgs.push("Kolları yana açın");
+  return { angles: { avgArm }, messages: msgs, quality: q };
+}
+function analyzeDeadlift(lm) {
+  const hipAngle = angle(lm[11], lm[23], lm[25]);
+  const backAngle = angle(lm[11], lm[23], lm[27]);
+  const msgs = []; let q = 100;
+  if (hipAngle !== null && hipAngle < 50) { msgs.push("Kalçayı geri itin"); q -= 30; }
+  else if (hipAngle !== null && hipAngle > 100) msgs.push("✅ İyi kalça pozisyonu");
+  if (backAngle !== null && backAngle < 40) { msgs.push("Sırt kambur"); q -= 30; }
+  return { angles: { hipAngle, backAngle }, messages: msgs, quality: Math.max(0, q) };
+}
+function analyzeBentOverRow(lm) {
+  const backAngle = angle(lm[11], lm[23], lm[25]);
+  const msgs = []; let q = 100;
+  if (backAngle !== null) {
+    if (backAngle < 30) { msgs.push("Sırt çok eğik"); q -= 30; }
+    else if (backAngle > 80) { msgs.push("Daha eğilin"); q -= 20; }
+    else msgs.push("✅ İyi pozisyon");
+  }
+  return { angles: { backAngle }, messages: msgs, quality: Math.max(0, q) };
+}
+function analyzeDumbbellSquat(lm) { return analyzeSquat(lm); } // Squat ile aynı
+function analyzeKbSwing(lm) {
+  const hipAngle = angle(lm[11], lm[23], lm[25]);
+  const msgs = []; let q = 100;
+  if (hipAngle !== null) {
+    if (hipAngle < 60) { msgs.push("Kalçayı patlatın"); q -= 25; }
+    else if (hipAngle > 110) msgs.push("✅ İyi swing");
+  }
+  return { angles: { hipAngle }, messages: msgs, quality: Math.max(0, q) };
+}
+
+function analyzeExercise(lm) {
+  switch (currentExercise) {
+    case "squat": return analyzeSquat(lm);
+    case "pushup": return analyzePushup(lm);
+    case "plank": return analyzePlank(lm);
+    case "lunge": return analyzeLunge(lm);
+    case "jumpingjack": return analyzeJumpingJack(lm);
+    case "crunch": return analyzeCrunch(lm);
+    case "mountain_climber": return analyzeMountainClimber(lm);
+    case "burpee": return analyzeBurpee(lm);
+    case "glute_bridge": return analyzeGluteBridge(lm);
+    case "high_knees": return analyzeHighKnees(lm);
+    case "leg_raise": return analyzeLegRaise(lm);
+    case "russian_twist": return analyzeRussianTwist(lm);
+    case "superman": return analyzeSuperman(lm);
+    case "tricep_dip": return analyzeTricepDip(lm);
+    case "dumbbell_curl": return analyzeDumbbellCurl(lm);
+    case "shoulder_press": return analyzeShoulderPress(lm);
+    case "lateral_raise": return analyzeLateralRaise(lm);
+    case "deadlift": return analyzeDeadlift(lm);
+    case "bent_over_row": return analyzeBentOverRow(lm);
+    case "dumbbell_squat": return analyzeDumbbellSquat(lm);
+    case "kb_swing": return analyzeKbSwing(lm);
+    default: return { angles: {}, messages: ["Serbest mod"], quality: 100 };
+  }
+}
+
+// ── REP DETECTION ────────────────────────────────────────────────────────────
+function detectRep(analysis) {
+  const ex = currentExercise;
+  if (ex === "squat" || ex === "dumbbell_squat") {
+    const a = analysis.angles.avgKnee;
+    if (a === null) return;
+    if (repState === "up" && a < 85) repState = "down";
+    else if (repState === "down" && a > 140) { repState = "up"; incrementRep(analysis); }
+  } else if (ex === "pushup") {
+    const a = analysis.angles.avgElbow;
+    if (a === null) return;
+    if (repState === "up" && a < 90) repState = "down";
+    else if (repState === "down" && a > 150) { repState = "up"; incrementRep(analysis); }
+  } else if (ex === "lunge") {
+    const a = analysis.angles.frontKnee;
+    if (a === null) return;
+    if (repState === "up" && a < 90) repState = "down";
+    else if (repState === "down" && a > 150) { repState = "up"; incrementRep(analysis); }
+  } else if (ex === "jumpingjack") {
+    if (analysis.extra?.armOpen && analysis.extra?.legOpen && jumpingJackState === "closed") jumpingJackState = "open";
+    else if (!analysis.extra?.armOpen && !analysis.extra?.legOpen && jumpingJackState === "open") {
+      jumpingJackState = "closed"; jumpingJackCount++; repCount = jumpingJackCount;
+      if (analysis.quality >= 70) goodReps++; else badReps++;
+      formScore = Math.round((goodReps / Math.max(1, repCount)) * 100);
+      checkSetCompletion();
+    }
+  } else if (ex === "plank") {
+    if (analysis.quality >= 70) {
+      if (plankStartTime === null) plankStartTime = Date.now();
+      plankHoldDuration = Math.floor((Date.now() - plankStartTime) / 1000);
+    } else if (plankStartTime !== null && Date.now() - lastPlankCheck > 3000) plankStartTime = null;
+    lastPlankCheck = Date.now();
+    repCount = plankHoldDuration;
+  } else if (ex === "crunch") {
+    const a = analysis.angles.torsoAngle;
+    if (a === null) return;
+    if (repState === "up" && a < 80) repState = "down";
+    else if (repState === "down" && a > 110) { repState = "up"; incrementRep(analysis); }
+  } else if (ex === "glute_bridge") {
+    const a = analysis.angles.hipAngle;
+    if (a === null) return;
+    if (repState === "up" && a > 160) repState = "down";
+    else if (repState === "down" && a < 140) { repState = "up"; incrementRep(analysis); }
+  } else if (ex === "tricep_dip") {
+    const a = analysis.angles.avgElbow;
+    if (a === null) return;
+    if (repState === "up" && a < 90) repState = "down";
+    else if (repState === "down" && a > 150) { repState = "up"; incrementRep(analysis); }
+  } else if (ex === "dumbbell_curl") {
+    const a = analysis.angles.avgElbow;
+    if (a === null) return;
+    if (repState === "up" && a < 50) repState = "down";
+    else if (repState === "down" && a > 130) { repState = "up"; incrementRep(analysis); }
+  } else if (ex === "shoulder_press") {
+    const a = analysis.angles.avgElbow;
+    if (a === null) return;
+    if (repState === "up" && a > 150) repState = "down";
+    else if (repState === "down" && a < 80) { repState = "up"; incrementRep(analysis); }
+  } else if (ex === "deadlift") {
+    const a = analysis.angles.hipAngle;
+    if (a === null) return;
+    if (repState === "up" && a < 60) repState = "down";
+    else if (repState === "down" && a > 100) { repState = "up"; incrementRep(analysis); }
+  } else if (ex === "kb_swing") {
+    const a = analysis.angles.hipAngle;
+    if (a === null) return;
+    if (repState === "up" && a > 100) repState = "down";
+    else if (repState === "down" && a < 60) { repState = "up"; incrementRep(analysis); }
+  }
+  // Diğer egzersizler için tempo/tekrar sayımı (high_knees, mountain_climber, vb.) — basit frame sayacı
+  else if (["high_knees", "mountain_climber", "russian_twist", "leg_raise", "superman", "lateral_raise", "bent_over_row", "burpee"].includes(ex)) {
+    // Her 45 frame'de bir tekrar say (yaklaşık 1.5 saniye)
+    if (!analysis._frameCounter) analysis._frameCounter = 0;
+    analysis._frameCounter++;
+    if (analysis._frameCounter > 45 && analysis.quality >= 60) {
+      analysis._frameCounter = 0;
+      incrementRep(analysis);
+    }
+  }
+}
+
+function incrementRep(analysis) {
+  repCount++;
+  if (analysis.quality >= 70) goodReps++;
+  else badReps++;
+  formScore = Math.round((goodReps / Math.max(1, repCount)) * 100);
+  checkSetCompletion();
+  speakIfGood(analysis);
+}
+function checkSetCompletion() {
+  const cfg = getConfig();
+  const targetReps = cfg.isTime ? cfg.targetReps : cfg.targetReps;
+  if (repCount >= targetReps && setCount < cfg.targetSets) {
+    setCount++;
+    repCount = 0;
+    goodReps = 0;
+    badReps = 0;
+    repState = "up";
+    plankStartTime = null;
+    plankHoldDuration = 0;
+    jumpingJackState = "closed";
+    jumpingJackCount = 0;
+    burpeePhase = "standing";
+    if (voiceEnabled) {
+      const u = new SpeechSynthesisUtterance(`Set ${setCount} başladı!`);
+      u.lang = "tr-TR";
+      speechSynthesis.speak(u);
+    }
+  }
+}
+
+// ── VOICE ────────────────────────────────────────────────────────────────────
+function speakIfGood(analysis) {
+  if (!voiceEnabled) return;
+  const msg = analysis.messages.find(m => m.includes("✅"));
+  if (msg) {
+    const u = new SpeechSynthesisUtterance(msg.replace("✅ ", ""));
+    u.lang = "tr-TR";
+    u.rate = 0.9;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(u);
+  }
+}
+function speakWarning(msg) {
+  if (!voiceEnabled) return;
+  const u = new SpeechSynthesisUtterance(msg);
+  u.lang = "tr-TR";
+  u.rate = 0.95;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+}
+
+// ── CALORIES ─────────────────────────────────────────────────────────────────
+function updateCalories() {
+  const now = Date.now();
+  const elapsedMin = (now - lastCalorieUpdate) / 60000;
+  const rate = getConfig().calPerMin || 4;
+  totalCalories += rate * elapsedMin;
+  lastCalorieUpdate = now;
+  calVal.textContent = Math.round(totalCalories);
+}
+
+// ── UI BUILD ─────────────────────────────────────────────────────────────────
+function buildMetricsPanel() {
+  metricsPanel.innerHTML = "";
+  noPersonEl.style.display = "none";
+  const cfg = getConfig();
+
+  const mainCard = document.createElement("div");
+  mainCard.className = "stat-card";
+  mainCard.innerHTML = `
+    <div class="card-title"><div class="title-left"><span class="icon">🎯</span> ${cfg.name.toUpperCase()}</div><span style="font-size:9px;color:var(--text-dim)">hedef: ${cfg.targetSets}x${cfg.targetReps}${cfg.isTime?'sn':''}</span></div>
+    <div class="big-number" id="mainCounter">${cfg.isTime ? formatTime(repCount) : repCount}</div>
+    <div class="big-label">${cfg.isTime ? 'PLANK SÜRESİ' : 'TOPLAM TEKRAR'}</div>
+    <div class="progress-wrap"><div class="progress-bar" id="setProgress" style="width:${(setCount/cfg.targetSets)*100}%"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:7px;color:var(--text-dim);margin-top:2px;">
+      <span>SET ${setCount}/${cfg.targetSets}</span><span>${cfg.isTime ? formatTime(repCount)+' / '+formatTime(cfg.targetReps) : repCount+'/'+cfg.targetReps+' tekrar'}</span>
+    </div>
+  `;
+  metricsPanel.appendChild(mainCard);
+
+  const formCard = document.createElement("div");
+  formCard.className = "stat-card";
+  formCard.innerHTML = `
+    <div class="card-title"><div class="title-left"><span class="icon">📊</span> FORM ANALİZİ</div></div>
+    <div class="two-cols">
+      <div class="mini-stat"><div class="val" style="color:var(--green)">${goodReps}</div><div class="lbl">DOĞRU</div></div>
+      <div class="mini-stat"><div class="val" style="color:var(--red)">${badReps}</div><div class="lbl">HATALI</div></div>
+    </div>
+    <div class="form-indicator" id="formIndicator">
+      <div class="form-dot good" id="formDot"></div>
+      <div class="form-msg" id="formMsg">Form değerlendiriliyor...</div>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="formBar" style="width:${formScore}%;background:${formScore>70?'var(--green)':formScore>40?'var(--yellow)':'var(--red)'}"></div></div>
+    <div style="font-size:7px;color:var(--text-dim);margin-top:2px;">FORM PUANI: ${formScore}%</div>
+    <div id="formMessages" style="margin-top:3px;"></div>
+  `;
+  metricsPanel.appendChild(formCard);
+
+  const setCard = document.createElement("div");
+  setCard.className = "stat-card";
+  setCard.innerHTML = `
+    <div class="card-title"><div class="title-left"><span class="icon">📋</span> SET TAKİBİ</div></div>
+    <div class="set-row" id="setRow">
+      ${Array.from({ length: cfg.targetSets }, (_, i) => `<div class="set-dot ${i + 1 < setCount ? 'done' : i + 1 === setCount ? 'current' : ''}">${i + 1}</div>`).join('')}
+    </div>
+    <div style="font-size:8px;color:var(--text-dim);margin-top:3px;">Set ${setCount}: ${cfg.isTime ? formatTime(repCount) : repCount + ' tekrar'}</div>
+  `;
+  metricsPanel.appendChild(setCard);
+}
+
+function updateUI(analysis) {
+  const cfg = getConfig();
+  const mainCounter = document.getElementById("mainCounter");
+  if (mainCounter) mainCounter.textContent = cfg.isTime ? formatTime(repCount) : repCount;
+  const formDot = document.getElementById("formDot");
+  const formMsg = document.getElementById("formMsg");
+  const formBar = document.getElementById("formBar");
+  const formMsgs = document.getElementById("formMessages");
+  if (formDot && formMsg && formBar) {
+    if (analysis.quality >= 80) { formDot.className = "form-dot good";
+      formMsg.textContent = "Form harika!"; }
+    else if (analysis.quality >= 50) { formDot.className = "form-dot warn";
+      formMsg.textContent = "Formu düzeltin"; }
+    else { formDot.className = "form-dot bad";
+      formMsg.textContent = "Form bozuk!"; }
+    formBar.style.width = analysis.quality + "%";
+    formBar.style.background = analysis.quality > 70 ? "var(--green)" : analysis.quality > 40 ? "var(--yellow)" : "var(--red)";
+  }
+  if (formMsgs) formMsgs.innerHTML = analysis.messages.map(m => `<div style="font-size:8px;color:var(--text);margin:1px 0;">${m}</div>`).join("");
+  const setProgress = document.getElementById("setProgress");
+  if (setProgress) setProgress.style.width = (setCount / cfg.targetSets) * 100 + "%";
+  const setRow = document.getElementById("setRow");
+  if (setRow) {
+    setRow.innerHTML = Array.from({ length: cfg.targetSets }, (_, i) =>
+      `<div class="set-dot ${i + 1 < setCount ? 'done' : i + 1 === setCount ? 'current' : ''}">${i + 1}</div>`
+    ).join("");
+  }
+}
+
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+
+// ── MAIN LOOP ────────────────────────────────────────────────────────────────
+function predict() {
+  if (!running) return;
+  fpsCnt++;
+  const now = performance.now();
+  if (now - fpsT >= 500) { fpsVal.textContent = Math.round(fpsCnt * 1000 / (now - fpsT));
+    fpsCnt = 0;
+    fpsT = now; }
+  const elapsed = Math.floor((Date.now() - exerciseStartTime) / 1000);
+  timeVal.textContent = formatTime(elapsed);
+  updateCalories();
+
+  if (lastTime !== video.currentTime) {
+    lastTime = video.currentTime;
+    if (canvas.width !== video.videoWidth) { canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight; }
+    ctx.save();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (currentFacing === "user") { ctx.translate(canvas.width, 0);
+      ctx.scale(-1, 1); }
+
+    const pR = poseLM.detectForVideo(video, now);
+    const pLMs = pR.landmarks ?? [];
+
+    if (pLMs.length > 0) {
+      noPersonEl.style.display = "none";
+      const lm = pLMs[0];
+      ctx.shadowColor = "#00e5cc";
+      ctx.shadowBlur = 10;
+      drawUtils.drawConnectors(lm, PoseLandmarker.POSE_CONNECTIONS, { color: "#00e5cc", lineWidth: 3 });
+      drawUtils.drawLandmarks(lm, { color: "#fff", fillColor: "#00e5cc", lineWidth: 1, radius: 4 });
+      ctx.shadowBlur = 0;
+
+      const analysis = analyzeExercise(lm);
+      detectRep(analysis);
+      formMessages = analysis.messages;
+
+      ctx.restore();
+      ctx.save();
+      const mx = (lm[11].x + lm[12].x) / 2, my = Math.min(lm[11].y, lm[12].y) - 0.05;
+      const lx = currentFacing === "user" ? (1 - mx) * canvas.width : mx * canvas.width;
+      const ly = my * canvas.height;
+      ctx.font = "bold 15px 'Barlow Condensed', sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      const name = getConfig().name;
+      const tw = ctx.measureText(name).width + 14;
+      ctx.fillStyle = "rgba(5,10,14,0.88)";
+      ctx.roundRect(lx - tw / 2, ly - 11, tw, 22, 5);
+      ctx.fill();
+      ctx.strokeStyle = "#00e5cc";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = "#00e5cc";
+      ctx.shadowColor = "#00e5cc";
+      ctx.shadowBlur = 8;
+      ctx.fillText(name, lx, ly);
+      ctx.restore();
+      if (currentFacing === "user") { ctx.save();
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1); }
+
+      // Açı etiketleri
+      if (analysis.angles.avgKnee) drawLabel(mid(lm[25], lm[26]).x, mid(lm[25], lm[26]).y, `${analysis.angles.avgKnee}°`);
+      if (analysis.angles.avgElbow && ["pushup", "tricep_dip", "dumbbell_curl"].includes(currentExercise))
+        drawLabel(mid(lm[13], lm[14]).x, mid(lm[13], lm[14]).y, `${analysis.angles.avgElbow}°`);
+      if (analysis.angles.hipAngle && ["deadlift", "kb_swing", "glute_bridge"].includes(currentExercise))
+        drawLabel(mid(lm[23], lm[24]).x, mid(lm[23], lm[24]).y, `${analysis.angles.hipAngle}°`);
+
+      updateUI(analysis);
+    } else {
+      noPersonEl.style.display = "flex";
+      if (document.getElementById("mainCounter")) { metricsPanel.innerHTML = "";
+        metricsPanel.appendChild(noPersonEl); }
+    }
+    ctx.restore();
+  }
+  requestAnimationFrame(predict);
+}
+
+function drawLabel(nx, ny, text) {
+  const x = currentFacing === "user" ? (1 - nx) * canvas.width : nx * canvas.width;
+  const y = ny * canvas.height;
+  ctx.save();
+  ctx.font = "bold 11px 'Space Mono', monospace";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const tw = ctx.measureText(text).width + 8;
+  ctx.fillStyle = "rgba(5,10,14,0.85)";
+  ctx.roundRect(x - tw / 2, y - 6, tw, 14, 3);
+  ctx.fill();
+  ctx.strokeStyle = "#ffd600";
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.fillStyle = "#ffd600";
+  ctx.shadowColor = "#ffd600";
+  ctx.shadowBlur = 4;
+  ctx.fillText(text, x, y);
+  ctx.restore();
+}
+
+// ── EVENT HANDLERS ───────────────────────────────────────────────────────────
+btnFlip.addEventListener("click", async () => {
+  if (!running) return;
+  btnFlip.style.transform = "rotate(180deg)";
+  setTimeout(() => { btnFlip.style.transform = ""; }, 300);
+  currentFacing = currentFacing === "user" ? "environment" : "user";
+  try { await startCamera(currentFacing); } catch (e) {}
+});
+btnShot.addEventListener("click", () => {
+  const tmp = document.createElement("canvas");
+  tmp.width = canvas.width;
+  tmp.height = canvas.height;
+  const t = tmp.getContext("2d");
+  if (currentFacing === "user") { t.save();
+    t.translate(tmp.width, 0);
+    t.scale(-1, 1);
+    t.drawImage(video, 0, 0, tmp.width, tmp.height);
+    t.restore();
+    t.save();
+    t.translate(tmp.width, 0);
+    t.scale(-1, 1);
+    t.drawImage(canvas, 0, 0);
+    t.restore(); } else { t.drawImage(video, 0, 0, tmp.width, tmp.height);
+    t.drawImage(canvas, 0, 0); }
+  const a = document.createElement("a");
+  a.download = `spor-analiz-${Date.now()}.png`;
+  a.href = tmp.toDataURL("image/png");
+  a.click();
+});
+btnReset.addEventListener("click", () => {
+  repCount = 0;
+  goodReps = 0;
+  badReps = 0;
+  formScore = 100;
+  setCount = 1;
+  repState = "up";
+  plankStartTime = null;
+  plankHoldDuration = 0;
+  jumpingJackState = "closed";
+  jumpingJackCount = 0;
+  burpeePhase = "standing";
+  exerciseStartTime = Date.now();
+  totalCalories = 0;
+  lastCalorieUpdate = Date.now();
+  formMessages = [];
+  buildMetricsPanel();
+});
+btnVoice.addEventListener("click", () => {
+  voiceEnabled = !voiceEnabled;
+  btnVoice.classList.toggle("on", voiceEnabled);
+  btnVoice.textContent = voiceEnabled ? "🔊" : "🔇";
+});
+btnSettings.addEventListener("click", () => {
+  const cfg = getConfig();
+  inputSets.value = cfg.targetSets;
+  inputReps.value = cfg.targetReps;
+  modalExName.textContent = cfg.name;
+  settingsModal.classList.add("visible");
+});
+btnCloseModal.addEventListener("click", () => settingsModal.classList.remove("visible"));
+settingsModal.addEventListener("click", (e) => { if (e.target === settingsModal) settingsModal.classList.remove("visible"); });
+btnSaveSettings.addEventListener("click", () => {
+  const cfg = getConfig();
+  cfg.targetSets = Math.max(1, parseInt(inputSets.value) || 3);
+  cfg.targetReps = Math.max(1, parseInt(inputReps.value) || 12);
+  saveExerciseConfigs();
+  settingsModal.classList.remove("visible");
+  btnReset.click(); // Sıfırla ve yeniden başlat
+  buildMetricsPanel();
+});
+
+// ── EGZERSİZ SEÇİCİ OLUŞTURMA ───────────────────────────────────────────────
+function buildExerciseSelectors() {
+  bodyweightSelector.innerHTML = "";
+  equipmentSelector.innerHTML = "";
+  for (const [key, ex] of Object.entries(EXERCISE_DB)) {
+    const btn = document.createElement("button");
+    btn.className = "ex-btn" + (key === currentExercise ? " active" : "");
+    btn.dataset.ex = key;
+    btn.innerHTML = `<span class="ex-icon">${ex.icon}</span> ${ex.name}`;
+    if (ex.category === "bodyweight") bodyweightSelector.appendChild(btn);
+    else equipmentSelector.appendChild(btn);
+  }
+}
+buildExerciseSelectors();
+
+document.querySelectorAll(".exercise-selector").forEach(sel => {
+  sel.addEventListener("click", (e) => {
+    const btn = e.target.closest(".ex-btn");
+    if (!btn) return;
+    document.querySelectorAll(".ex-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentExercise = btn.dataset.ex;
+    btnReset.click();
+    buildMetricsPanel();
+  });
+});
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    placeholder.classList.remove("hidden");
+    await setupModels();
+    currentFacing = "user";
+    await startCamera(currentFacing);
+    running = true;
+    placeholder.classList.add("hidden");
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    if (isMobile || hasMultipleCams) btnFlip.classList.add("visible");
+    buildMetricsPanel();
+    exerciseStartTime = Date.now();
+    lastCalorieUpdate = Date.now();
+    predict();
+  } catch (e) {
+    console.error(e);
+    placeholder.classList.remove("hidden");
+    placeholder.querySelector("p").textContent = "Kamera başlatılamadı. İzin verip sayfayı yenileyin.";
+    modelBadge.textContent = "● HATA";
+    modelBadge.classList.add("error");
+  }
+}
+init();
+window.addEventListener("orientationchange", () => {
+  if (running) setTimeout(async () => { try { await startCamera(currentFacing); } catch (e) {} }, 400);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K.Çekmece Bilişim | Geleceği Kodla</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #050505;
+            --brand-python: #FFD43B;
+            --brand-arduino: #00979D;
+            --brand-android: #3DDC84;
+            --brand-java: #5382a1;
+            --brand-html: #E34F26;
+            --brand-blender: #F5792A;
+            --brand-fusion: #F05F22;
+        }
+
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background-color: var(--bg-dark);
+            color: #fff;
+            overflow-x: hidden;
+            background: radial-gradient(circle at 50% 0%, #1a1f35 0%, #050505 80%);
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, h5 {
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- VERSİYON VE CHANGELOG SİSTEMİ --- */
+        .version-container {
+            position: fixed;
+            top: 90px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 9999;
+        }
+
+        .version-tag {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            letter-spacing: 1px;
+        }
+
+        .changelog-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .changelog-btn:hover { background: #00f3ff; color: #000; border-color: #00f3ff; }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(5, 5, 5, 0.95);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 15px 0;
+            z-index: 1000;
+        }
+
+        /* Hero */
+        .hero-section {
+            padding: 140px 0 30px;
+            text-align: center;
+        }
+        .hero-title {
+            font-size: 3rem;
+            background: linear-gradient(to right, #fff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 20px rgba(165, 180, 252, 0.4));
+        }
+
+        /* --- KART TASARIMI --- */
+        .time-card {
+            border-radius: 24px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+            min-height: 520px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(20, 20, 25, 0.4);
+            border: 1px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            transition: 0.4s;
+        }
+        .time-card:hover { transform: translateY(-10px) scale(1.02); border-color: rgba(255,255,255,0.2); }
+
+        .card-morning { box-shadow: 0 10px 30px -10px rgba(255, 215, 0, 0.15); }
+        .card-noon { box-shadow: 0 10px 30px -10px rgba(0, 243, 255, 0.15); }
+        .card-evening { box-shadow: 0 10px 30px -10px rgba(188, 19, 254, 0.15); background: linear-gradient(160deg, rgba(15,15,20,0.9), rgba(30,10,40,0.9)); }
+        
+        .card-morning .icon-atmos { color: #FFD700; filter: drop-shadow(0 0 15px #FFD700); animation: floatIcon 4s ease-in-out infinite; }
+        .card-noon .icon-atmos { color: #00f3ff; filter: drop-shadow(0 0 15px #00f3ff); animation: spinSlow 12s linear infinite; }
+        .card-evening .icon-atmos { color: #d8b4fe; filter: drop-shadow(0 0 15px #a855f7); transform: rotate(-15deg); }
+        .icon-atmos { font-size: 4rem; margin-bottom: 1.5rem; z-index: 2; transition: 0.4s; }
+
+        .card-badge {
+            padding: 8px 20px; border-radius: 30px; font-weight: 800; font-size: 0.8rem; letter-spacing: 1px;
+            margin-bottom: 25px; z-index: 5;
+            position: relative; display: inline-block;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s;
+        }
+        
+        .card-details { opacity: 1; transition: 0.5s; z-index: 5; position: relative; } 
+
+        .tech-title { font-weight: 900; font-size: 1.5rem; margin-bottom: 10px; }
+        .tech-desc { font-size: 0.95rem; color: #cbd5e1; line-height: 1.5; }
+        .tech-icon { font-size: 2.2rem; margin-bottom: 15px; }
+
+        @keyframes floatIcon { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes spinSlow { 100% { transform: rotate(360deg); } }
+
+        /* --- MOBİL İÇİN ÖZEL TIKLA-AÇ SİSTEMLERİ --- */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2rem; }
+            .mobile-scroll { display: flex; flex-direction: column; gap: 15px; padding: 0 20px; }
+
+            /* ANA KARTLAR (SABAH/ÖĞLEN/AKŞAM) */
+            .time-card {
+                min-height: auto;
+                max-height: 180px;
+                padding: 1.5rem;
+                justify-content: center; 
+                align-items: center;
+                cursor: pointer;
+                transition: max-height 0.5s ease-in-out, background 0.3s;
+            }
+            .time-card.expanded {
+                max-height: 600px;
+                background: rgba(20, 20, 30, 0.95);
+                border-color: rgba(255,255,255,0.4);
+            }
+            .icon-atmos { font-size: 3.5rem; margin-bottom: 15px; transition: 0.3s; }
+            .card-badge { margin-bottom: 0; opacity: 1 !important; display: inline-block !important; }
+            .time-card.expanded .icon-atmos { transform: scale(0.8); margin-bottom: 10px; }
+            .time-card.expanded .card-badge { margin-bottom: 25px; background: rgba(255,255,255,0.15); }
+            .card-details {
+                opacity: 0; max-height: 0; overflow: hidden; transform: translateY(20px); transition: 0.3s ease;
+            }
+            .time-card.expanded .card-details {
+                opacity: 1; max-height: 500px; transform: translateY(0); transition: 0.5s ease 0.2s;
+            }
+            .tap-hint { font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-top: 15px; display: block; animation: pulse 1.5s infinite; }
+            .time-card.expanded .tap-hint { display: none; }
+
+            /* --- KATALOG ÖĞELERİ İÇİN MOBİL LİSTE (v1.18.0) --- */
+            /* Mobilde Grid'i iptal et, Liste yap */
+            .catalog-item {
+                display: flex; /* İçeriği yan yana diz */
+                flex-direction: row;
+                align-items: center;
+                justify-content: flex-start;
+                text-align: left;
+                padding: 15px;
+                min-height: 70px;
+                cursor: pointer;
+                flex-wrap: wrap; /* Açılınca aşağı taşsın */
+            }
+            
+            /* İkon ve Başlık Yan Yana */
+            .cat-icon { 
+                font-size: 1.8rem; 
+                margin-bottom: 0 !important; /* PC'deki margin'i ez */
+                margin-right: 15px; 
+                width: 40px; text-align: center;
+            }
+            .cat-title { 
+                font-size: 0.9rem; 
+                margin-bottom: 0; 
+                flex: 1; /* Kalan alanı kapla */
+            }
+
+            /* Açıklama Başlangıçta Gizli */
+            .cat-desc {
+                width: 100%; /* Tam genişlik */
+                max-height: 0;
+                opacity: 0;
+                overflow: hidden;
+                margin-top: 0;
+                font-size: 0.85rem;
+                color: #aaa;
+                transition: all 0.4s ease;
+                border-top: 1px solid rgba(255,255,255,0.05);
+            }
+
+            /* AÇIK HAL */
+            .catalog-item.expanded {
+                background: rgba(255,255,255,0.08); /* Hafif aydınlat */
+                border-left-color: #00f3ff !important; /* Sol çizgi parlasın */
+            }
+            .catalog-item.expanded .cat-desc {
+                max-height: 200px;
+                opacity: 1;
+                margin-top: 10px;
+                padding-top: 10px;
+            }
+            /* Sağ tarafa küçük bir ok işareti ekle (CSS ile) */
+            .catalog-item::after {
+                content: '\f107'; /* FontAwesome Down Arrow */
+                font-family: "Font Awesome 6 Free"; 
+                font-weight: 900;
+                color: #555;
+                transition: 0.3s;
+            }
+            .catalog-item.expanded::after {
+                transform: rotate(180deg);
+                color: #fff;
+            }
+        }
+
+        /* PC (Desktop) için Katalog Ayarları (Değişmedi) */
+        @media (min-width: 769px) {
+            .catalog-item {
+                background: rgba(255,255,255,0.03); 
+                border-radius: 12px; 
+                padding: 20px; 
+                border-left: 4px solid #444; 
+                height: 100%; 
+                transition: 0.3s;
+                /* PC'de flex değil blok yapı korunur */
+            }
+            .cat-icon { font-size: 2rem; margin-bottom: 15px; display: block; }
+            .cat-title { font-weight: 700; font-size: 1rem; color: #fff; margin-bottom: 8px; }
+            .cat-desc { font-size: 0.85rem; color: #94a3b8; line-height: 1.4; display: block; }
+        }
+
+        /* Modal & Genel */
+        .modal-body-scroll { max-height: 60vh; overflow-y: auto; }
+        .mega-btn-container { padding: 60px 0; }
+        .mega-btn {
+            background: transparent; border: 2px solid #0aff60; color: #0aff60;
+            padding: 18px 40px; font-size: 1.1rem; font-weight: 800; border-radius: 50px;
+            transition: 0.3s; text-transform: uppercase; letter-spacing: 1.5px;
+            text-decoration: none; display: inline-flex; align-items: center;
+        }
+        .mega-btn:hover { background: #0aff60; color: #000; box-shadow: 0 0 40px rgba(10, 255, 96, 0.6); transform: translateY(-5px); }
+        .about-section { background: linear-gradient(to top, #000, rgba(20,20,30,0.5)); padding: 80px 0; margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.05); }
+        .info-box { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 40px; border-left: 5px solid #00f3ff; }
+        .table-dark { background: transparent; }
+        .table-dark th { color: #0aff60; }
+        .badge-ver { font-family: monospace; font-size: 0.8rem; background: rgba(255,255,255,0.1); color: #fff; padding: 2px 6px; border-radius: 4px; }
+        .badge-new { background: #0aff60; color: #000; font-weight: bold; font-size: 0.7rem; padding: 2px 5px; border-radius: 3px; margin-left: 5px; }
+        .modal-content { background: #0a0a0a; border: 1px solid rgba(255,255,255,0.1); }
+        .modal-header, .modal-footer { border-color: rgba(255,255,255,0.1); }
+        .catalog-item:hover { background: rgba(255,255,255,0.08); transform: translateX(5px); }
+    </style>
+</head>
+<body>
+
+    <div class="version-container">
+        <div class="version-tag">v1.18.0</div>
+        <div class="changelog-btn" data-bs-toggle="modal" data-bs-target="#changelogModal" title="Değişiklik Geçmişi">
+            <i class="fa-solid fa-info"></i>
+        </div>
+    </div>
+
+    <nav class="navbar fixed-top">
+        <div class="container justify-content-center">
+            <div class="d-flex align-items-center">
+                <i class="fa-solid fa-code fa-2x me-3 text-info"></i>
+                <div class="text-start">
+                    <div class="fw-bold fs-6 text-white">KÜÇÜKÇEKMECE BELEDİYESİ</div>
+                    <div class="small text-secondary fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">GENÇLİK MERKEZİ BİLİŞİM SINIFI</div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-section container">
+        <h1 class="hero-title fw-black mb-3">GELECEĞİ <span>TASARLA</span></h1>
+        <p class="text-secondary lead fs-6">Teknolojiye Dokun, Üret ve Paylaş.</p>
+    </section>
+
+    <section class="container mb-5">
+        <div class="text-center mb-4">
+            <h3 class="fw-bold text-white fs-5"><i class="fa-solid fa-circle me-2 text-danger fa-fade"></i>ŞU AN CANLI YAYINDA</h3>
+            <p class="text-muted small d-md-none"><i class="fa-solid fa-hand-pointer me-1"></i>Detaylar için kartlara tıklayın</p>
+        </div>
+
+        <div class="row g-4 mobile-scroll">
+            
+            <div class="col-md-4">
+                <div class="time-card card-morning" onclick="toggleCard(this)">
+                    <div class="icon-atmos"><i class="fa-regular fa-sun"></i></div>
+                    <span class="card-badge" style="color:#FFD700; border-color:#FFD700;">SABAH GRUBU</span>
+                    <span class="tap-hint d-md-none">Görüntüle</span>
+
+                    <div class="card-details">
+                        <div class="tech-icon text-warning"><i class="fa-solid fa-code"></i></div>
+                        <h4 class="tech-title">C# PROGRAMLAMA</h4>
+                        <p class="tech-desc">
+                            Unity ve Windows tabanlı yazılım geliştirme temelleri. Koşullu ifadeler, döngüler ve input sistemleri.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="time-card card-noon" onclick="toggleCard(this)">
+                    <div class="icon-atmos"><i class="fa-solid fa-cloud-sun"></i></div>
+                    <span class="card-badge" style="color:#00f3ff; border-color:#00f3ff;">ÖĞLEN GRUBU</span>
+                    <span class="tap-hint d-md-none">Görüntüle</span>
+
+                    <div class="card-details">
+                        <div class="tech-icon text-info"><i class="fa-brands fa-unity"></i></div>
+                        <h4 class="tech-title">UNITY OYUN TASARIMI</h4>
+                        <p class="tech-desc">
+                            Oyun mekanikleri, sahne tasarımı ve fizik motoru. 3D toplama oyunu tasarımı ve UI entegrasyonu.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="time-card card-evening" onclick="toggleCard(this)">
+                    <div class="icon-atmos"><i class="fa-solid fa-moon"></i></div>
+                    <span class="card-badge" style="color:#d8b4fe; border-color:#d8b4fe;">AKŞAM GRUBU</span>
+                    <span class="tap-hint d-md-none">Görüntüle</span>
+
+                    <div class="card-details">
+                        <div class="tech-icon" style="color:#d8b4fe"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                        <h4 class="tech-title">TERSİNE MÜHENDİSLİK</h4>
+                        <p class="tech-desc">
+                            3D Tarama, model onarımı ve dijitalleştirme süreçleri. İleri düzey sculpting ve organik modelleme.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="container mega-btn-container text-center">
+        <p class="text-white-50 mb-4">Merkezimizde verilen diğer 21 farklı eğitimi keşfetmek ister misin?</p>
+        <button class="mega-btn" data-bs-toggle="modal" data-bs-target="#katalogModal">
+            <i class="fa-solid fa-layer-group me-2"></i>TÜM MÜFREDATI GÖRÜNTÜLE
+        </button>
+    </section>
+
+    <section class="about-section">
+        <div class="container">
+            <div class="info-box">
+                <h3 class="text-white fw-bold mb-3">BİLİŞİM SINIFI HAKKINDA</h3>
+                <p class="text-light lead mb-0" style="opacity: 0.9;">
+                    Küçükçekmece Belediyesi Gençlik Merkezi Bilişim Sınıfı, gençleri 21. yüzyılın yetkinlikleriyle donatmak için tasarlanmış bir teknoloji üssüdür. 
+                    Amacımız; sadece tüketen değil, <strong>üreten, kodlayan ve tasarlayan</strong> bir nesil yetiştirmektir.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <div class="modal fade" id="changelogModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-white">🚧 SİTE GELİŞİM GÜNLÜĞÜ</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0 modal-body-scroll">
+                    <table class="table table-dark table-striped mb-0 small">
+                        <thead>
+                            <tr>
+                                <th scope="col" style="width: 30%;">Versiyon</th>
+                                <th scope="col">Yapılan Değişiklikler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                             <tr>
+                                <td><span class="badge-ver">v1.18.0</span><span class="badge-new">SON</span></td>
+                                <td>
+                                    <ul class="list-unstyled mb-0">
+                                        <li>• <strong>Catalog Mobile Fix:</strong> Katalog mobilde liste görünümüne çevrildi.</li>
+                                        <li>• <strong>Accordion Catalog:</strong> Katalog öğelerine tıkla-aç özelliği eklendi.</li>
+                                        <li>• <strong>UI Clean-up:</strong> Mobilde kalabalık görüntü giderildi.</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                             <tr>
+                                <td><span class="badge-ver">v1.17.0</span></td>
+                                <td>• Mobile Layout Fix (Yükseklik artırıldı, Badge görünürlüğü sabitlendi).</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-ver">v1.16.0</span></td>
+                                <td>• Changelog datası tamamlandı.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-ver">v1.15.0</span></td>
+                                <td>• Mobil Accordion (Tıkla-Aç) sistemi.<br>• Changelog modülü eklendi.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-ver">v1.14.0</span></td>
+                                <td>• Kod temizliği.<br>• Mobil Snap Scroll.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-ver">v1.0.0</span></td>
+                                <td>• Proje Başlangıcı.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer border-0 justify-content-center">
+                    <small class="text-muted">Son Güncelleme: 31.01.2026</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="katalogModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-white"><i class="fa-solid fa-book-open me-2 text-info"></i>2025-2026 EĞİTİM KATALOĞU</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+                        <div class="col"><div class="catalog-item" onclick="toggleCatalog(this)" style="border-color: var(--brand-python);"><i class="fa-brands fa-python cat-icon" style="color:var(--brand-python)"></i><div class="cat-title">PYTHON PROGRAMLAMA</div><p class="cat-desc">Koşullu ifadeler, döngüler, listeler ve hesap makinesi projesi.</p></div></div>
+                        <div class="col"><div class="catalog-item" onclick="toggleCatalog(this)"><i class="fa-brands fa-unity cat-icon text-white"></i><div class="cat-title">UNITY İLE 3D OYUN</div><p class="cat-desc">Fizik motoru, terrain tasarımı, animasyon ve 3D toplama oyunu.</p></div></div>
+                        <div class="col"><div class="catalog-item" onclick="toggleCatalog(this)" style="border-color: var(--brand-java);"><i class="fa-brands fa-java cat-icon" style="color:var(--brand-java)"></i><div class="cat-title">JAVA PROGRAMLAMA</div><p class="cat-desc">Nesne tabanlı programlama, diziler ve metotlarla proje.</p></div></div>
+                        <div class="col"><div class="catalog-item" onclick="toggleCatalog(this)"><i class="fa-solid fa-code cat-icon text-white"></i><div class="cat-title">C# (UNITY İÇİN)</div><p class="cat-desc">Oyun geliştirme temelleri, koşullu ifadeler ve döngüler.</p></div></div>
+                        <div class="col"><div class="catalog-item" onclick="toggleCatalog(this)" style="border-color: var(--brand-android);"><i class="fa-brands fa-android cat-icon" style="color:var(--brand-android)"></i><div class="cat-title">MOBİL UYGULAMA (APP)</div><p class="cat-desc">App Inventor ile Android uygulama ve TinyDB kullanımı.</p></div></div>
+                        <div class="col"><div class="catalog-item" onclick="toggleCatalog(this)" style="border-color: #00599C;"><i class="fa-solid fa-terminal cat-icon" style="color:#00599C"></i><div class="cat-title">C++ PROGRAMLAMA</div><p class="cat-desc">Temel programlama, döngüler, diziler ve fonksiyonlar.</p></div></div>
+                        
+                        <div class="col"><div class="catalog-item" onclick="toggleCatalog(this)" style="border-color: var(--brand-html);"><i class="fa-brands fa-html5 cat-icon" style="color:var(--brand-html)"></i><div class="cat-title">WEB TASARIMI (HTML/CSS)</div><p class="cat-desc">Semantik HTML, CSS Box Model ve responsive portföy.</p></div></div>
+                        <div class="col"><div class="catalog-item" onclick="toggleCatalog(this)" style="border-color: #F7DF1E;"><i class="fa-brands fa-js cat-icon" style="color:#F7DF1E"></i><div class="cat-title">JAVASCRIPT ARAYÜZ</div><p class="cat-desc">DOM manipülasyonu, olay yönetimi ve dinamik sayfalar.</p></div></div>
+
+                        <div class="col"><div class="catalog-item" onclick="toggleCatalog(this)" style="border-color: var(--brand-blender);"><i class="fa-solid fa-cube cat-icon" style="color:var(--brand-blender)"></i><div class="cat-title">BLENDER 3D MODELLEME</div><p class="cat-desc">Karakter heykelleme, organik modelleme ve baskıya hazırlık.</p></div></div>
+                        <div class="col"><div class="catalog-item" onclick="toggleCatalog(this)" style="border-color: var(--brand-fusion);"><i class="fa-solid fa-layer-group cat-icon" style="color:var(--brand-fusion)"></i><div class="cat-title">KATI MODELLEME (FUSION)</div><p class="cat-desc">Parametrik tasarım, montaj, analiz ve teknik çizim.</p></div></div>
+                        <div class="col"><div class="catalog-item" onclick="toggleCatalog(this)" style="border-color: #128FC8;"><i class="fa-solid fa-cubes-stacked cat-icon" style="color:#128FC8"></i><div class="cat-title">TINKERCAD (DRONE)</div><p class="cat-desc">Drone gövde tasarımı, STL oluşturma ve optimizasyon.</p></div></div>
+                        <div class="col"><div class="catalog-item" onclick="toggleCatalog(this)" style="border-color: #ff0055;"><i class="fa-solid fa-pen-ruler cat-icon" style="color:#ff0055"></i><div class="cat-title">3D PROTOTİPLEME</div><p class="cat-desc">3D Kalem ve el aletleriyle mimari model ve prototip.</p></div></div>
+                        <div class="col"><div class="catalog-item" onclick="toggleCatalog(this)" style="border-color: #ff0055;"><i class="fa-solid fa-paintbrush cat-icon" style="color:#ff0055"></i><div class="cat-title">FİGÜR BOYAMA</div><p class="cat-desc">Zımparalama, astarlama, gölgelendirme ve efektler.</p></div></div>
+                        <div class="col"><div class="catalog-item" onclick="toggleCatalog(this)" style="border-color: #ff0055;"><i class="fa-solid fa-scissors cat-icon" style="color:#ff0055"></i><div class="cat-title">ÇİZ, KES, YARAT (CNC)</div><p class="cat-desc">Vektörel çizim, lazer kesim ve malzeme seçimi.</p></div></div>
+                        
+                        <div class="col"><div class="catalog-item" onclick="toggleCatalog(this)" style="border-color: #00f3ff;"><i class="fa-solid fa-bullseye cat-icon" style="color:#00f3ff"></i><div class="cat-title">TERSİNE MÜHENDİSLİK-1</div><p class="cat-desc">3D Tarama, mesh düzenleme, optimizasyon ve onarım.</p></div></div>
+                        <div class="col"><div class="catalog-item" onclick="toggleCatalog(this)" style="border-color: #bc13fe;"><i class="fa-solid fa-wand-magic-sparkles cat-icon" style="color:#bc13fe"></i><div class="cat-title">TERSİNE MÜHENDİSLİK-2</div><p class="cat-desc">Blender ile tarama aktarımı, sculpting ve organik model.</p></div></div>
+                        <div class="col"><div class="catalog-item" onclick="toggleCatalog(this)" style="border-color: var(--brand-arduino);"><i class="fa-solid fa-microchip cat-icon" style="color:var(--brand-arduino)"></i><div class="cat-title">ARDUINO ROBOTİK</div><p class="cat-desc">LED, potansiyometre, sensörler ve robotik sistemler.</p></div></div>
+                        <div class="col"><div class="catalog-item" onclick="toggleCatalog(this)" style="border-color: var(--brand-arduino);"><i class="fa-solid fa-house-signal cat-icon" style="color:var(--brand-arduino)"></i><div class="cat-title">AKILLI EV (IOT)</div><p class="cat-desc">Arduino, Blynk App, Wi-Fi ve sensör entegrasyonu.</p></div></div>
+                        
+                        <div class="col"><div class="catalog-item" onclick="toggleCatalog(this)" style="border-color: #217346;"><i class="fa-solid fa-laptop-file cat-icon" style="color:#217346"></i><div class="cat-title">BİLGİSAYAR İŞLETMENLİĞİ</div><p class="cat-desc">Word, Excel, PowerPoint ile belge ve sunum hazırlama.</p></div></div>
+                        <div class="col"><div class="catalog-item" onclick="toggleCatalog(this)" style="border-color: #217346;"><i class="fa-solid fa-file-excel cat-icon" style="color:#217346"></i><div class="cat-title">EXCEL TEMEL</div><p class="cat-desc">Veri analizi, biçimlendirme, formüller ve tablolar.</p></div></div>
+                        <div class="col"><div class="catalog-item" onclick="toggleCatalog(this)" style="border-color: #217346;"><i class="fa-solid fa-robot cat-icon" style="color:#217346"></i><div class="cat-title">EXCEL MAKROLAR</div><p class="cat-desc">VBA ile makro kaydetme, otomasyon ve döngüler.</p></div></div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 justify-content-center">
+                    <button type="button" class="btn btn-outline-light px-5 rounded-pill" data-bs-dismiss="modal">KAPAT</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center py-4 mt-5 text-secondary small">
+        &copy; 2026 KÜÇÜKÇEKMECE BELEDİYESİ GENÇLİK MERKEZİ
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleCard(card) {
+            if (window.innerWidth <= 768) {
+                if (card.classList.contains('expanded')) {
+                    card.classList.remove('expanded');
+                } else {
+                    document.querySelectorAll('.time-card').forEach(c => c.classList.remove('expanded'));
+                    card.classList.add('expanded');
+                }
+            }
+        }
+
+        // KATALOG İÇİN ÖZEL TOGGLE FONKSİYONU
+        function toggleCatalog(item) {
+            if (window.innerWidth <= 768) {
+                if (item.classList.contains('expanded')) {
+                    item.classList.remove('expanded');
+                } else {
+                    // İsteğe bağlı: Diğerlerini kapatıp sadece buna odaklanmak istersen bu satırı açabilirsin
+                    // document.querySelectorAll('.catalog-item').forEach(c => c.classList.remove('expanded'));
+                    item.classList.add('expanded');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
