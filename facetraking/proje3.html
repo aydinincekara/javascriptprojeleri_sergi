@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ateş Püskürtme | K.Çekmece AR Studio</title>
+
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-face-aframe.prod.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        html, body { width: 100vw; height: 100vh; margin: 0; padding: 0; overflow: hidden; background: #0f172a; font-family: 'Nunito', sans-serif; }
+        #ar-container { overflow: hidden; position: absolute; width: 100vw; height: 100vh; top: 0; left: 0; z-index: 1; }
+
+        /* Bilgi Paneli */
+        #info-panel {
+            position: absolute; top: 15px; left: 15px; z-index: 999;
+            background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px);
+            color: #fff; padding: 15px 20px; border-radius: 15px;
+            border: 1px solid rgba(255, 0, 127, 0.3);
+        }
+        
+        #info-panel h2 { margin: 0; font-size: 1.1rem; color: #ff007f; text-transform: uppercase; font-weight: 900;}
+        #status-text { margin-top: 5px; font-weight: 900; font-size: 1.2rem; color: #10b981; transition: 0.2s; }
+        #ratio-log { font-size: 0.7rem; color: #94a3b8; font-family: monospace; margin-top: 5px; }
+
+        /* Sağ Üst Ana Sayfa Butonu */
+        .home-btn {
+            position: absolute; top: 15px; right: 15px; z-index: 1000;
+            background: rgba(15, 23, 42, 0.8); color: #fff;
+            padding: 10px 20px; border-radius: 12px; text-decoration: none;
+            font-weight: 900; border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: 0.3s; backdrop-filter: blur(5px);
+        }
+        .home-btn:hover { background: #ff007f; border-color: #ff007f; box-shadow: 0 0 15px #ff007f; }
+    </style>
+
+    <script>
+        // ---------------------------------------------------------
+        // 🔥 AKILLI MİMİK SENSÖRÜ (Oran Tabanlı)
+        // ---------------------------------------------------------
+        AFRAME.registerComponent('mouth-fire-system', {
+            init: function () {
+                this.pTop = new THREE.Vector3(); 
+                this.pBot = new THREE.Vector3();
+                this.pLeft = new THREE.Vector3(); 
+                this.pRight = new THREE.Vector3();
+            },
+            tick: function () {
+                const top = document.getElementById('p-13');
+                const bot = document.getElementById('p-14');
+                const left = document.getElementById('p-33');
+                const right = document.getElementById('p-263');
+                const fire = document.getElementById('fire-core');
+                const status = document.getElementById('status-text');
+                const log = document.getElementById('ratio-log');
+
+                if (!top || !bot || !left || !right || !top.object3D.visible) return;
+
+                top.object3D.getWorldPosition(this.pTop);
+                bot.object3D.getWorldPosition(this.pBot);
+                left.object3D.getWorldPosition(this.pLeft);
+                right.object3D.getWorldPosition(this.pRight);
+
+                // Oran Hesaplama: (Dudak Arası) / (Yüz Genişliği)
+                const mouthDist = this.pTop.distanceTo(this.pBot);
+                const faceWidth = this.pLeft.distanceTo(this.pRight);
+                const ratio = mouthDist / faceWidth;
+
+                log.innerText = `Sensör Oranı: ${ratio.toFixed(3)}`;
+
+                // Eşik Değeri: 0.12 (Kameraya uzaklıktan bağımsız çalışır)
+                if (ratio > 0.12) {
+                    status.innerText = "AĞIZ AÇIK! 🔥";
+                    status.style.color = "#ff007f";
+                    fire.setAttribute('visible', true);
+                    // Ağız ne kadar açılırsa ateş o kadar büyür!
+                    const dynamicScale = ratio * 8; 
+                    fire.setAttribute('scale', `${dynamicScale} ${dynamicScale} ${dynamicScale}`);
+                } else {
+                    status.innerText = "Ağız Kapalı";
+                    status.style.color = "#10b981";
+                    fire.setAttribute('visible', false);
+                }
+            }
+        });
+    </script>
+</head>
+
+<body>
+
+    <a href="index.html" class="home-btn">🏠 ANA SAYFA</a>
+    
+    <div id="info-panel">
+        <h2>DENEYİM 02</h2>
+        <div id="status-text">Sensör Bekleniyor...</div>
+        <div id="ratio-log">Oran: 0.000</div>
+    </div>
+
+    <div id="ar-container">
+        <a-scene 
+            embedded 
+            mindar-face="autoStart: true; mirror: false;" 
+            vr-mode-ui="enabled: false"
+            device-orientation-permission-ui="enabled: false"
+            mouth-fire-system
+        >
+            <a-camera active="false" position="0 0 0" look-controls="enabled: false"></a-camera>
+
+            <a-entity mindar-face-target="anchorIndex: 13">
+                <a-entity id="fire-core" visible="false" position="0 -0.05 0.1">
+                    <a-sphere radius="0.04" material="shader: flat; color: #ff007f; transparent: true; opacity: 0.8"></a-sphere>
+                    <a-torus radius="0.06" radius-tubular="0.005" material="shader: flat; color: #0ea5e9;" animation="property: rotation; to: 360 360 0; loop: true; dur: 1000"></a-torus>
+                </a-entity>
+            </a-entity>
+        </a-scene>
+    </div>
+
+    <script>
+        const sceneEl = document.querySelector("a-scene");
+        // Sensör için gerekli kritik noktaları oluştur
+        const points = [13, 14, 33, 263];
+        points.forEach(i => {
+            const e = document.createElement("a-entity");
+            e.setAttribute("id", `p-${i}`);
+            e.setAttribute("mindar-face-target", `anchorIndex: ${i}`);
+            
+            // Referans noktalarını çok küçük beyaz noktalar olarak görelim
+            const s = document.createElement("a-sphere");
+            s.setAttribute("radius", "0.002");
+            s.setAttribute("material", "shader: flat; color: #fff;");
+            e.appendChild(s);
+            sceneEl.appendChild(e);
+        });
+    </script>
+</body>
+</html>

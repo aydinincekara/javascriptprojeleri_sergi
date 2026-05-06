@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>K.Çekmece Belediyesi | AR Geliştirme Stüdyosu</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Righteous&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-blue: #0ea5e9;
+            --primary-pink: #ff007f;
+            --primary-yellow: #facc15;
+            --dark-navy: #0f172a;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--dark-navy);
+            /* Arka plan derinlik efekti */
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.1), transparent 30%),
+                radial-gradient(circle at 90% 80%, rgba(255, 0, 127, 0.1), transparent 30%);
+            color: #f8fafc;
+            font-family: 'Nunito', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Üst Menü / Kurumsal Header */
+        header {
+            text-align: center;
+            padding: 40px 20px 30px; 
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* LOGO DÜZELTMESİ */
+        .logo {
+            width: 25vw; 
+            max-width: 140px; 
+            height: auto;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
+        }
+
+        /* ANA BAŞLIK: KÜÇÜKÇEKMECE BELEDİYESİ */
+        h1 {
+            font-family: 'Righteous', cursive;
+            font-size: 2.8rem; 
+            margin: 0 0 5px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: linear-gradient(to right, #fff, var(--primary-blue), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
+        }
+
+        /* 🔥 YENİ DÜZENLEME: Tek satır, kurumsal gri alt başlık */
+        .subtitle {
+            font-size: 1.2rem;
+            color: #cbd5e1; /* Kurumsal, okunabilir açık gri */
+            margin-top: 5px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* Proje Kartları Alanı */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto 80px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            padding: 20px;
+        }
+
+        /* Profesyonel Kart Tasarımı */
+        .project-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 28px;
+            padding: 35px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .project-card:hover {
+            transform: translateY(-12px);
+            border-color: var(--primary-blue);
+            box-shadow: 0 25px 50px rgba(14, 165, 233, 0.2);
+        }
+
+        .badge {
+            align-self: flex-start;
+            padding: 6px 16px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .b-blue { background: var(--primary-blue); color: #fff; }
+        .b-pink { background: var(--primary-pink); color: #fff; }
+        .b-yellow { background: var(--primary-yellow); color: #000; }
+
+        h2 {
+            font-family: 'Righteous', cursive;
+            font-size: 1.5rem;
+            margin: 0 0 15px 0;
+            color: #fff;
+        }
+
+        .description {
+            font-size: 1rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+            flex-grow: 1;
+            margin-bottom: 20px;
+        }
+
+        /* Teknik Detay Kutusu */
+        .tech-info {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 18px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .tech-info div {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+
+        .tech-info span {
+            color: var(--primary-blue);
+            font-weight: 700;
+        }
+
+        /* Aksiyon Butonu */
+        .btn-launch {
+            display: block;
+            text-align: center;
+            background: #fff;
+            color: var(--dark-navy);
+            padding: 16px;
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: 900;
+            font-size: 1.1rem;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .project-card:hover .btn-launch {
+            background: var(--primary-blue);
+            color: #fff;
+        }
+
+        footer {
+            text-align: center;
+            padding: 60px;
+            color: #64748b;
+            font-weight: 700;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.95rem;
+        }
+
+        /* Ekran Boyutuna Göre Ayarlamalar (Responsive) */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 1.6rem; }
+            .subtitle { font-size: 1rem; letter-spacing: 0.5px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <img src="kucukcekmece_logo.png" alt="Küçükçekmece Belediyesi" class="logo">
+        
+        <h1>KÜÇÜKÇEKMECE BELEDİYESİ</h1>
+        <div class="subtitle">Gençlik Merkezi Artırılmış Gerçeklik Deneyim Laboratuvarı</div>
+    </header>
+
+    <div class="container">
+        
+        <div class="project-card">
+            <div class="badge b-blue">DENEYİM 01</div>
+            <h2>Siber Mesh & Makyaj</h2>
+            <p class="description">
+                Yüz hatlarını milimetrik takip eden 52 noktalı akıllı ağ sistemiyle tanışın. Kendi dijital maskenizi oluşturun.
+            </p>
+            <div class="tech-info">
+                <div>Anatomi: <span>52 Anchor Points</span></div>
+                <div>Yöntem: <span>Polygon Mesh Tracking</span></div>
+            </div>
+            <a href="proje1.html" class="btn-launch">BAŞLAT</a>
+        </div>
+
+        <div class="project-card" style="border-color: rgba(255, 0, 127, 0.2);">
+            <div class="badge b-pink">DENEYİM 02</div>
+            <h2>Ateş Püskürtme</h2>
+            <p class="description">
+                Ağız hareketlerini analiz eden akıllı sensör sistemi. Mimiklerini kullanarak AR dünyasında elementleri kontrol et.
+            </p>
+            <div class="tech-info" style="border-left-color: var(--primary-pink);">
+                <div>Algoritma: <span>Relative Ratio (Bağıl Oran)</span></div>
+                <div>Efekt: <span>Particle System (Parçacık)</span></div>
+            </div>
+            <a href="proje2.html" class="btn-launch">BAŞLAT</a>
+        </div>
+
+        <div class="project-card" style="border-color: rgba(250, 204, 21, 0.2);">
+            <div class="badge b-yellow">DENEYİM 03</div>
+            <h2>Göz Kırpma Sensörü</h2>
+            <p class="description">
+                Göz kapaklarının hareketini dijital bir komuta dönüştürün. Sadece göz kırparak AR filtrelerini yönetin.
+            </p>
+            <div class="tech-info" style="border-left-color: var(--primary-yellow);">
+                <div>Sensör: <span>Blink Detection (Göz Kırpma)</span></div>
+                <div>Mantık: <span>Variable Logic (Değişken)</span></div>
+            </div>
+            <a href="proje3.html" class="btn-launch">BAŞLAT</a>
+        </div>
+
+    </div>
+
+    <footer>
+        Küçükçekmece Belediyesi Gençlik Merkezi<br>
+        Bilişim Sınıfı Geliştirme Projesi &copy; 2026
+    </footer>
+
+</body>
+</html>

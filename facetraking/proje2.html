@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>K.Çekmece AR | Proje 2</title>
+  <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-face-aframe.prod.js"></script>
+  <style>
+    body { margin: 0; background: #000; overflow: hidden; }
+    #ar-container { position: absolute; width: 100vw; height: 100vh; top: 0; left: 0; z-index: 1; }
+    #ui { position: absolute; top: 10px; left: 10px; z-index: 999; background: rgba(0,0,0,0.8); color: #fff; padding: 15px; border-radius: 10px; font-family: sans-serif; border: 1px solid #ff007f; text-align: center; }
+    .home-btn { position: fixed; top: 10px; right: 10px; z-index: 1000; background: #ff007f; color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; font-family: sans-serif; }
+    #status { font-size: 20px; font-weight: 900; margin-top: 5px; color: #10b981; }
+  </style>
+  <script>
+    AFRAME.registerComponent('mouth-sensor', {
+      init: function () { this.p1 = new THREE.Vector3(); this.p2 = new THREE.Vector3(); this.p3 = new THREE.Vector3(); this.p4 = new THREE.Vector3(); },
+      tick: function () {
+        const top = document.getElementById('point-13'); const bot = document.getElementById('point-14');
+        const lEye = document.getElementById('point-33'); const rEye = document.getElementById('point-263');
+        const status = document.getElementById('status'); const fire = document.getElementById('fire-effect');
+        if (!top || !bot || !top.object3D.visible) return;
+        top.object3D.getWorldPosition(this.p1); bot.object3D.getWorldPosition(this.p2);
+        lEye.object3D.getWorldPosition(this.p3); rEye.object3D.getWorldPosition(this.p4);
+        const ratio = this.p1.distanceTo(this.p2) / this.p3.distanceTo(this.p4);
+        if (ratio > 0.12) {
+          status.innerText = "AĞIZ AÇIK! 🔥"; status.style.color = "#ff007f";
+          fire.setAttribute('visible', true);
+          fire.setAttribute('scale', `${ratio*5} ${ratio*5} ${ratio*5}`);
+        } else {
+          status.innerText = "Ağız Kapalı"; status.style.color = "#10b981";
+          fire.setAttribute('visible', false);
+        }
+      }
+    });
+  </script>
+</head>
+<body>
+  <a href="index.html" class="home-btn">🏠 ANA SAYFA</a>
+  <div id="ui">
+    <b>Proje 2: Ateş Püskürtme</b><div id="status">Bekleniyor...</div>
+  </div>
+  <div id="ar-container">
+    <a-scene embedded mindar-face="autoStart: true; mirror: false;" mouth-sensor>
+      <a-camera active="false" position="0 0 0" look-controls="enabled: false"></a-camera>
+      <a-entity mindar-face-target="anchorIndex: 13">
+        <a-sphere id="fire-effect" radius="0.05" material="shader: flat; color: #ff007f; transparent: true; opacity: 0.7" visible="false" position="0 -0.05 0.1"></a-sphere>
+      </a-entity>
+    </a-scene>
+  </div>
+  <script>
+    const sceneEl = document.querySelector("a-scene");
+    [13, 14, 33, 263].forEach(i => {
+      const e = document.createElement("a-entity"); e.setAttribute("id", `point-${i}`); e.setAttribute("mindar-face-target", `anchorIndex: ${i}`);
+      const s = document.createElement("a-sphere"); s.setAttribute("radius", "0.003"); s.setAttribute("material", "shader:flat; color:#fff");
+      e.appendChild(s); sceneEl.appendChild(e);
+    });
+  </script>
+</body>
+</html>

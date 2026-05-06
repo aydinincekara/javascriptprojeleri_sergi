@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Siber Mesh | K.Çekmece AR Studio</title>
+
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-face-aframe.prod.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        /* Kamera alanını sabitleme ve siyah ekran sorununu çözme */
+        html, body { width: 100vw; height: 100vh; margin: 0; padding: 0; overflow: hidden; background: #0f172a; font-family: 'Nunito', sans-serif; }
+        
+        #ar-container { overflow: hidden; position: absolute; width: 100vw; height: 100vh; top: 0; left: 0; z-index: 1; }
+
+        /* Sol Üst Bilgi Paneli (Glassmorphism) */
+        #info-panel {
+            position: absolute; top: 15px; left: 15px; z-index: 999;
+            background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px);
+            color: #fff; padding: 15px 20px; border-radius: 15px;
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        #info-panel h2 { margin: 0 0 5px 0; font-size: 1.1rem; color: #0ea5e9; text-transform: uppercase; font-weight: 900;}
+        #info-panel p { margin: 0; font-size: 0.85rem; color: #cbd5e1; }
+        #status-text { margin-top: 5px; font-weight: bold; color: #facc15; font-size: 0.8rem; }
+
+        /* Sağ Üst Ana Sayfa Butonu */
+        .home-btn {
+            position: absolute; top: 15px; right: 15px; z-index: 1000;
+            background: rgba(15, 23, 42, 0.8); color: #fff;
+            padding: 10px 20px; border-radius: 12px; text-decoration: none;
+            font-weight: 900; font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;
+            backdrop-filter: blur(5px);
+        }
+
+        .home-btn:hover {
+            background: #0ea5e9; border-color: #0ea5e9;
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.5); transform: translateY(-2px);
+        }
+    </style>
+
+    <script>
+        // ---------------------------------------------------------
+        // ÇİZGİ MOTORU (v3.5 - Yüksek Performans)
+        // ---------------------------------------------------------
+        AFRAME.registerComponent('dynamic-line', {
+            schema: { id1: {type: 'string'}, id2: {type: 'string'}, color: {default: '#0ea5e9'} },
+            init: function () { this.p1 = new THREE.Vector3(); this.p2 = new THREE.Vector3(); },
+            tick: function () {
+                const el1 = document.getElementById(this.data.id1);
+                const el2 = document.getElementById(this.data.id2);
+                
+                if (!el1 || !el2 || !el1.object3D.visible) { this.el.setAttribute('visible', false); return; }
+                this.el.setAttribute('visible', true);
+
+                el1.object3D.getWorldPosition(this.p1);
+                el2.object3D.getWorldPosition(this.p2);
+
+                const startStr = `${this.p1.x.toFixed(4)} ${this.p1.y.toFixed(4)} ${this.p1.z.toFixed(4)}`;
+                const endStr = `${this.p2.x.toFixed(4)} ${this.p2.y.toFixed(4)} ${this.p2.z.toFixed(4)}`;
+                this.el.setAttribute('line', `start: ${startStr}; end: ${endStr}; color: ${this.data.color}`);
+            }
+        });
+
+        // ---------------------------------------------------------
+        // YÜZEY MOTORU (v3.5 - Z-Fighting ve Culling Korumalı)
+        // ---------------------------------------------------------
+        AFRAME.registerComponent('dynamic-triangle', {
+            schema: { id1: {type: 'string'}, id2: {type: 'string'}, id3: {type: 'string'}, color: {default: '#ff007f'}, opacity: {default: 0.6} },
+            init: function () {
+                this.p1 = new THREE.Vector3(); this.p2 = new THREE.Vector3(); this.p3 = new THREE.Vector3();
+                this.geometry = new THREE.BufferGeometry();
+                this.geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(9), 3));
+
+                this.material = new THREE.MeshBasicMaterial({
+                    color: new THREE.Color(this.data.color), transparent: true, opacity: this.data.opacity, 
+                    side: THREE.DoubleSide, depthTest: false, depthWrite: false
+                });
+
+                this.mesh = new THREE.Mesh(this.geometry, this.material);
+                this.mesh.frustumCulled = false;
+                this.el.setObject3D('mesh', this.mesh);
+            },
+            tick: function () {
+                const el1 = document.getElementById(this.data.id1); const el2 = document.getElementById(this.data.id2); const el3 = document.getElementById(this.data.id3);
+                if (!el1 || !el2 || !el3 || !el1.object3D.visible) { this.mesh.visible = false; return; }
+                this.mesh.visible = true;
+
+                el1.object3D.getWorldPosition(this.p1); el2.object3D.getWorldPosition(this.p2); el3.object3D.getWorldPosition(this.p3);
+
+                const pos = this.mesh.geometry.attributes.position.array;
+                pos[0] = this.p1.x; pos[1] = this.p1.y; pos[2] = this.p1.z;
+                pos[3] = this.p2.x; pos[4] = this.p2.y; pos[5] = this.p2.z;
+                pos[6] = this.p3.x; pos[7] = this.p3.y; pos[8] = this.p3.z;
+                
+                this.mesh.geometry.attributes.position.needsUpdate = true;
+            }
+        });
+    </script>
+</head>
+
+<body>
+
+    <a href="index.html" class="home-btn">🏠 ANA SAYFA</a>
+    
+    <div id="info-panel">
+        <h2>DENEYİM 01</h2>
+        <p>Siber Mesh & Makyaj</p>
+        <div id="status-text">Yüz aranıyor...</div>
+    </div>
+
+    <div id="ar-container">
+        <a-scene 
+            embedded 
+            mindar-face="autoStart: true; mirror: false;" 
+            vr-mode-ui="enabled: false"
+            device-orientation-permission-ui="enabled: false"
+        >
+            <a-camera active="false" position="0 0 0" look-controls="enabled: false"></a-camera>
+        </a-scene>
+    </div>
+
+    <script>
+        const sceneEl = document.querySelector("a-scene");
+        const statusText = document.getElementById("status-text");
+        let currentAnchors = {}; 
+
+        // 🔥 ÇİZGİLER (Siber Hatlar)
+        const MESH_CONNECTIONS = [
+            [33, 160], [160, 158], [158, 133], [133, 153], [153, 144], [144, 33], // Sol Göz
+            [362, 385], [385, 387], [387, 263], [263, 373], [373, 380], [380, 362], // Sağ Göz
+            [10, 151], [151, 9], [9, 8], [8, 168], [168, 6], [6, 197], [197, 195], [195, 5], [5, 4], [4, 1], // Burun
+            [61, 185], [185, 40], [40, 39], [39, 37], [37, 0], [0, 267], [267, 269], [269, 270], [270, 409], [409, 291], // Dudak Üstü
+            [291, 375], [375, 321], [321, 405], [405, 314], [314, 17], [17, 84], [84, 181], [181, 91], [91, 146], [146, 61], // Dudak Altı
+            [10, 33], [10, 263], [33, 152], [263, 152] // Dış Konturlar
+        ];
+
+        // 🔥 MAKYAJ (Yüzeyler)
+        const MAKEUP_SURFACES = [
+            [133, 159, 153, "#00FFFF", 0.6], [159, 158, 153, "#00FFFF", 0.6], [158, 160, 144, "#00FFFF", 0.6], // Sol Far
+            [362, 386, 380, "#00FFFF", 0.6], [386, 385, 380, "#00FFFF", 0.6], [385, 387, 373, "#00FFFF", 0.6], // Sağ Far
+            [234, 93, 132, "#FF007F", 0.7], [93, 132, 58, "#FF007F", 0.7], // Sol Allık
+            [454, 323, 361, "#FF007F", 0.7], [323, 361, 288, "#FF007F", 0.7], // Sağ Allık
+            [61, 37, 267, "#FFD700", 0.8], [291, 267, 37, "#FFD700", 0.8] // Bıyık Bölgesi
+        ];
+
+        function createAnchor(index) {
+            if (currentAnchors[index]) return currentAnchors[index].id; 
+            const id = `point-${index}`;
+            const entity = document.createElement("a-entity");
+            entity.setAttribute("id", id);
+            entity.setAttribute("mindar-face-target", `anchorIndex: ${index}`);
+            
+            // Görünür Siber Çiviler
+            const sphere = document.createElement("a-sphere");
+            sphere.setAttribute("radius", "0.003"); 
+            sphere.setAttribute("color", "#ffffff");
+            sphere.setAttribute("opacity", "0.8");
+            sphere.setAttribute("material", "shader: flat;"); // Siyah gölgeyi engeller
+            entity.appendChild(sphere);
+
+            sceneEl.appendChild(entity);
+            currentAnchors[index] = { id: id, entity: entity }; 
+            return id;
+        }
+
+        function createLine(id1, id2) {
+            const lineEntity = document.createElement("a-entity");
+            lineEntity.setAttribute("dynamic-line", `id1: ${id1}; id2: ${id2}; color: #00FFFF`);
+            sceneEl.appendChild(lineEntity);
+        }
+
+        function createTriangle(id1, id2, id3, color, opacity) {
+            const polyEntity = document.createElement("a-entity");
+            polyEntity.setAttribute("dynamic-triangle", `id1: ${id1}; id2: ${id2}; id3: ${id3}; color: ${color}; opacity: ${opacity}`);
+            sceneEl.appendChild(polyEntity);
+        }
+
+        const initAR = () => {
+            // Çizgileri Ör
+            MESH_CONNECTIONS.forEach(pair => {
+                const idA = createAnchor(pair[0]); const idB = createAnchor(pair[1]);
+                createLine(idA, idB);
+            });
+
+            // Makyajı Ör
+            MAKEUP_SURFACES.forEach(tri => {
+                const idA = createAnchor(tri[0]); const idB = createAnchor(tri[1]); const idC = createAnchor(tri[2]);
+                createTriangle(idA, idB, idC, tri[3], tri[4]);
+            });
+
+            statusText.textContent = "Sistem Aktif. Yüz Taranıyor...";
+            statusText.style.color = "#10b981"; // Yeşil
+        };
+
+        if (sceneEl.hasLoaded) { initAR(); } else { sceneEl.addEventListener('loaded', initAR); }
+    </script>
+</body>
+</html>

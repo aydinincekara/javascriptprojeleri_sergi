@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yerel YZ Laboratuvarı - Aydın İncekara</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; display: flex; flex-direction: column; align-items: center; margin: 0; height: 100vh; overflow: hidden; }
+        
+        /* Yeni: Üst Menü ve Log Paneli Stilleri */
+        .top-menu { width: 100%; background: #222; padding: 10px 0; text-align: center; border-bottom: 2px solid #007bff; z-index: 10; }
+        .log-btn { background: #007bff; color: white; border: none; padding: 6px 15px; cursor: pointer; border-radius: 5px; font-weight: bold; font-size: 13px; transition: 0.2s; }
+        .log-btn:hover { background: #0056b3; }
+        
+        .log-panel { display: none; width: 100%; max-width: 800px; height: 180px; background: #1e1e1e; color: #00ff00; font-family: 'Consolas', monospace; font-size: 13px; padding: 10px; overflow-y: auto; box-sizing: border-box; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .log-entry { margin-bottom: 5px; border-bottom: 1px dashed #333; padding-bottom: 4px; line-height: 1.4; }
+        .log-error { color: #ff5555; }
+        .log-warn { color: #ffaa00; }
+        .log-info { color: #55aaff; }
+        .log-success { color: #55ff55; }
+        
+        /* Ana Sohbet Konteyneri */
+        .chat-container { width: 100%; max-width: 800px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; flex: 1; margin: 15px 0; }
+        
+        .tabs { display: flex; padding: 10px; background: #fff; border-bottom: 1px solid #ddd; gap: 10px; justify-content: center; }
+        .tab-btn { padding: 8px 16px; border: 1px solid #ccc; border-radius: 20px; background: white; cursor: pointer; font-weight: bold; color: #555; transition: all 0.2s; }
+        .tab-btn.active { background: #e0e0e0; color: #000; border-color: #999; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+        
+        .chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: #fafafa; }
+        .message { max-width: 85%; padding: 12px 16px; border-radius: 15px; line-height: 1.5; position: relative; }
+        .user-msg { background: #007bff; color: white; align-self: flex-end; border-bottom-right-radius: 0; }
+        .ai-msg { background: #e9ecef; color: #333; align-self: flex-start; border-bottom-left-radius: 0; }
+        
+        /* Yeni: Süre Etiketi Stili */
+        .time-badge { font-size: 11px; color: #777; margin-top: 8px; display: block; text-align: right; font-style: italic; border-top: 1px solid #ddd; padding-top: 5px; }
+        
+        .input-area { display: flex; padding: 15px; background: white; border-top: 1px solid #ddd; }
+        input[type="text"] { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 8px; outline: none; font-size: 16px; }
+        button.send-btn { padding: 12px 24px; margin-left: 10px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        button.send-btn:hover { background: #218838; }
+    </style>
+</head>
+<body>
+
+<div class="top-menu">
+    <button class="log-btn" onclick="logPaneliGosterGizle()">🖥️ Sistem Günlüklerini (Log) Aç / Kapat</button>
+</div>
+<div class="log-panel" id="logPanel">
+    <div class="log-entry log-info">[SİSTEM] Arayüz başlatıldı. İzleme modülü aktif.</div>
+</div>
+
+<div class="chat-container">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="modelSec(this, 'gemma')">💬 Chat (Gemma)</button>
+        <button class="tab-btn" onclick="modelSec(this, 'llama3')">💻 Coding (Kod Uzmanı)</button>
+    </div>
+
+    <div class="chat-box" id="chatBox">
+        <div class="message ai-msg">Sistem hazır. Model seçimi yapabilir ve sorularınızı iletebilirsiniz.</div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="Mesajınızı buraya yazın..." onkeypress="if(event.key === 'Enter') mesajGonder()">
+        <button class="send-btn" onclick="mesajGonder()">Gönder</button>
+    </div>
+</div>
+
+<script>
+    const NGROK_URL = "https://uncurious-blurry-affiliate.ngrok-free.dev";
+    let aktifModel = "gemma"; 
+
+    // --- YENİ: LOGLAMA SİSTEMİ ---
+    function sistemeLogYaz(mesaj, tip = "info") {
+        const logPanel = document.getElementById("logPanel");
+        const div = document.createElement("div");
+        const saat = new Date().toLocaleTimeString('tr-TR', { hour12: false, hour: "numeric", minute: "numeric", second: "numeric" });
+        
+        div.className = `log-entry log-${tip}`;
+        div.innerHTML = `<strong>[${saat}]</strong> ${mesaj}`;
+        logPanel.appendChild(div);
+        logPanel.scrollTop = logPanel.scrollHeight; // Hep en alta kaydır
+    }
+
+    function logPaneliGosterGizle() {
+        const panel = document.getElementById("logPanel");
+        if (panel.style.display === "none" || panel.style.display === "") {
+            panel.style.display = "block";
+            sistemeLogYaz("Günlük paneli kullanıcı tarafından açıldı.", "info");
+        } else {
+            panel.style.display = "none";
+        }
+    }
+
+    // --- MEVCUT SİSTEM ---
+    function modelSec(buton, modelAdi) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        buton.classList.add('active');
+        aktifModel = modelAdi;
+        
+        ekranaYazdir("Sistem", `Model değiştirildi. Artık **${aktifModel}** devrede.`, "ai-msg");
+        sistemeLogYaz(`Kullanıcı model değiştirdi: ${aktifModel} seçildi.`, "info");
+    }
+
+    async function mesajGonder() {
+        const inputFied = document.getElementById("userInput");
+        const mesaj = inputFied.value.trim();
+        if(!mesaj) return;
+
+        ekranaYazdir("Sen", mesaj, "user-msg");
+        inputFied.value = "";
+
+        const requestBody = {
+            model: aktifModel,
+            prompt: mesaj,
+            stream: false
+        };
+
+        const loadingId = ekranaYazdir("Asistan", "Düşünüyor...", "ai-msg");
+        
+        // SÜRE ÖLÇÜMÜ BAŞLANGICI
+        sistemeLogYaz(`İstek hazırlanıyor... Hedef Model: ${aktifModel}`, "info");
+        sistemeLogYaz(`Ngrok tüneline (${NGROK_URL}) veri gönderiliyor...`, "warn");
+        const baslangicZamani = performance.now(); 
+
+        try {
+            const response = await fetch(`${NGROK_URL}/api/generate`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'ngrok-skip-browser-warning': 'true' 
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            const data = await response.json();
+            
+            // SÜRE ÖLÇÜMÜ BİTİŞİ
+            const bitisZamani = performance.now();
+            const gecenSure = ((bitisZamani - baslangicZamani) / 1000).toFixed(2); // Saniyeye çevir, 2 ondalık bırak
+
+            if (data.error) {
+                document.getElementById(loadingId).innerText = "Ollama Hatası: " + data.error;
+                sistemeLogYaz(`Ollama Sunucusu Hata Döndürdü: ${data.error}`, "error");
+            } else {
+                // Cevabı ve süreyi ekrana bas
+                document.getElementById(loadingId).innerHTML = data.response + `<span class="time-badge">⏱️ Cevap Süresi: ${gecenSure} saniye</span>`;
+                sistemeLogYaz(`Veri başarıyla işlendi. Süre: ${gecenSure} saniye.`, "success");
+            }
+
+        } catch (error) {
+            document.getElementById(loadingId).innerText = "Bağlantı hatası! Sunucuya ulaşılamadı.";
+            sistemeLogYaz(`Kritik İletişim Hatası: Fetch işlemi başarısız. Ngrok veya Ollama kapalı olabilir.`, "error");
+            sistemeLogYaz(`Hata Detayı: ${error.message}`, "error");
+        }
+    }
+
+    function ekranaYazdir(gonderen, metin, sinif) {
+        const chatBox = document.getElementById("chatBox");
+        const div = document.createElement("div");
+        const uniqueId = "msg_" + Math.random().toString(36).substr(2, 9);
+        
+        div.id = uniqueId;
+        div.className = `message ${sinif}`;
+        div.innerHTML = metin; // Time badge html içerdiği için innerHTML kullanıyoruz
+        
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        return uniqueId;
+    }
+</script>
+
+</body>
+</html>
