@@ -212,9 +212,9 @@
             { hex: '#8b5cf6', rgb: 'rgba(139, 92, 246, 0.2)', text: '#fff' }  // Mor
         ];
 
-        // 35 Adet Proje Veritabanı
+        // Genişletilmiş Proje Veritabanı
         const projectsData = [
-            // --- KLASÖRLERDEN GELEN 24 PROJE ---
+            // --- KLASÖRLERDEN GELEN ANA PROJELER ---
             { title: "Kırmızı Yeşil Nokta", desc: "Temel etkileşimli nokta takibi. Ekranda beliren hedefleri algılayın.", link: "java_1_kirmizi_yesil_nokta/index.html", t1: "Algoritma", v1: "Renk Tespiti", t2: "Platform", v2: "Java/Processing", icon: "fa-circle-dot" },
             { title: "Hayalet İz", desc: "Hareket eden nesnelerin arkasında bıraktığı sinematik iz efektleri.", link: "java_2_hayalet_iz/index.html", t1: "Efekt", v1: "Trail Render", t2: "Mantık", v2: "Kare Gecikmesi", icon: "fa-ghost" },
             { title: "İz Bırakan Resim", desc: "Fare imleci ile çizim yaparak resmin ortaya çıkmasını sağlayan interaktif tuval.", link: "java_3_iz_birakan_Resim/index.html", t1: "Etkileşim", v1: "Mouse Maskeleme", t2: "Görsel", v2: "Dinamik Canvas", icon: "fa-paintbrush" },
@@ -240,7 +240,35 @@
             { title: "Sentinel Hub", desc: "Çeşitli sensör ve kameralardan gelen verilerin toplandığı merkezi güvenlik ağı.", link: "java_egitimi18_sentinel_hub/index.html", t1: "Sistem", v1: "Merkezi İzleme", t2: "Bağlantı", v2: "IoT Protokolü", icon: "fa-network-wired" },
             { title: "Biyonik Göz Faresi", desc: "Sadece gözbebeği hareketleriyle bilgisayar faresini yönetmenizi sağlayan teknoloji.", link: "java_egitimi19_biyonik_goz_faresi/index.html", t1: "Erişilebilirlik", v1: "Göz İmleci", t2: "Hassasiyet", v2: "Yüksek", icon: "fa-crosshairs" },
 
-            // --- YENİ EKLENEN ÖZEL PROJELER (Web Bağlantıları) ---
+            // --- EĞİTİM & ETKİLEŞİM KLASÖRLERİ ---
+            { title: "Koridor Yarışması", desc: "Etkileşimli koridor yarışı oyunu ve 3D mekanik test alanı.", link: "koridor_yarismasi/index.html", t1: "Oyun", v1: "Yarış & Parkur", t2: "Dinamik", v2: "Hareket Algısı", icon: "fa-person-running" },
+            { title: "Vücut Takibi (v2.3 Stabil)", desc: "Entegre kamera sistemleri ile hata payı düşürülmüş stabil tam vücut analizi.", link: "Vucut_takibi_v2.3(Bu_en_stabil_hali)/index.html", t1: "Sistem", v1: "Stabil Sürüm", t2: "Teknoloji", v2: "Gelişmiş Pose Tracking", icon: "fa-child-reaching" },
+            { title: "Spor İçin Vücut Takibi", desc: "Egzersiz hareketlerini analiz etmek ve antrenman takibi için tasarlanmış modül.", link: "Spor_için_yapilmis_vucut_takibi/index.html", t1: "Modül", v1: "Egzersiz Analizi", t2: "Odak", v2: "Spor Koçluğu", icon: "fa-person-snowboarding" },
+            { title: "Çocuklar İçin Vücut Takibi", desc: "Küçük yaş grupları için eğlenceli, pedagojik ve oyunlaştırılmış takip sistemi.", link: "Cocuklar_icin_vucut_takibi/index.html", t1: "Kullanıcı", v1: "Çocuklar", t2: "Deneyim", v2: "Oyunlaştırma", icon: "fa-shapes" },
+            { title: "Ders Bilgileri", desc: "Eğitim laboratuvarı ders materyalleri, müfredat içerikleri ve interaktif dokümanlar.", link: "ders_bilgileri/index.html", t1: "İçerik", v1: "Müfredat", t2: "Format", v2: "Etkileşimli Notlar", icon: "fa-book-open" },
+            { title: "AR Test 7", desc: "Artırılmış gerçeklik özellikleri geliştirmek için hazırlanan 7. iterasyon test ortamı.", link: "artest7/index.html", t1: "Deney", v1: "AR Prototip", t2: "Aşama", v2: "Test", icon: "fa-vr-cardboard" },
+            { title: "Java 3 (Esma)", desc: "Öğrenci proje geliştirme çalışmaları ve laboratuvar Java uygulama dosyaları.", link: "java3_esma/index.html", t1: "Geliştirici", v1: "Öğrenci Projesi", t2: "Altyapı", v2: "Java", icon: "fa-code" },
+            { title: "Cinematic Arcana (Esma)", desc: "Görsel sanatlar ve sinematik animasyon etkileşimlerini içeren özel çalışma dosyası.", link: "cinematic_arcana_esma/index.html", t1: "Görsel", v1: "Sinematik Efekt", t2: "Kategori", v2: "Art & VFX", icon: "fa-film" },
+
+            // --- YENİ EKLENEN AR, YZ VE YÜZ TAKİP KLASÖRLERİ ---
+            { title: "AR Ana Proje", desc: "Gençlik merkezi için geliştirilmiş artırılmış gerçeklik temel proje dosyaları ve sahneleri.", link: "ar_project/index.html", t1: "Kategori", v1: "AR/VR", t2: "Aşama", v2: "Geliştirme", icon: "fa-cubes" },
+            { title: "Gelişmiş Yüz Takibi", desc: "Kamera üzerinden gerçek zamanlı yüz hatları, mimik ve duygu takip sistemi.", link: "facetraking/index.html", t1: "Sistem", v1: "Face Tracking", t2: "Kullanım", v2: "Biyometri", icon: "fa-face-smile-beam" },
+            { title: "Gençlik Merkezi Portal", desc: "Küçükçekmece Gençlik Merkezi öğrencilerine özel hazırlanan etkileşimli yerel portal.", link: "genclikmerkezi/index.html", t1: "Platform", v1: "Öğrenci Arayüzü", t2: "Kurum", v2: "K.Çekmece", icon: "fa-users-rectangle" },
+            { title: "Yerel YZ Laboratuvarı", desc: "Yapay zeka modellerinin veri setlerini değerlendirme, test etme ve oylama arayüzü.", link: "yzollama/index.html", t1: "Laboratuvar", v1: "Yerel YZ", t2: "İşlem", v2: "Veri Değerlendirme", icon: "fa-brain" },
+
+            // --- YENİ EKLENEN AR SERGİ KAREKOD (QR) BAĞLANTILARI ---
+            { title: "AR Sergi Noktası 1", desc: "Artırılmış gerçeklik sergisi için 1 numaralı karekod etkileşim istasyonu.", link: "https://www.ar_sergi_qr1.comx", t1: "Etkinlik", v1: "Sergi", t2: "Bağlantı", v2: "Dış Web", icon: "fa-qrcode" },
+            { title: "AR Sergi Noktası 2", desc: "Artırılmış gerçeklik sergisi için 2 numaralı karekod etkileşim istasyonu.", link: "https://www.ar_sergi_qr2.comx", t1: "Etkinlik", v1: "Sergi", t2: "Bağlantı", v2: "Dış Web", icon: "fa-qrcode" },
+            { title: "AR Sergi Noktası 3", desc: "Artırılmış gerçeklik sergisi için 3 numaralı karekod etkileşim istasyonu.", link: "https://www.ar_sergi_qr3.comx", t1: "Etkinlik", v1: "Sergi", t2: "Bağlantı", v2: "Dış Web", icon: "fa-qrcode" },
+            { title: "AR Sergi Noktası 4", desc: "Artırılmış gerçeklik sergisi için 4 numaralı karekod etkileşim istasyonu.", link: "https://www.ar_sergi_qr4.comx", t1: "Etkinlik", v1: "Sergi", t2: "Bağlantı", v2: "Dış Web", icon: "fa-qrcode" },
+            { title: "AR Sergi Noktası 5", desc: "Artırılmış gerçeklik sergisi için 5 numaralı karekod etkileşim istasyonu.", link: "https://www.ar_sergi_qr5.comx", t1: "Etkinlik", v1: "Sergi", t2: "Bağlantı", v2: "Dış Web", icon: "fa-qrcode" },
+            { title: "AR Sergi Noktası 6", desc: "Artırılmış gerçeklik sergisi için 6 numaralı karekod etkileşim istasyonu.", link: "https://www.ar_sergi_qr6.comx", t1: "Etkinlik", v1: "Sergi", t2: "Bağlantı", v2: "Dış Web", icon: "fa-qrcode" },
+            { title: "AR Sergi Noktası 7", desc: "Artırılmış gerçeklik sergisi için 7 numaralı karekod etkileşim istasyonu.", link: "https://www.ar_sergi_qr7.comx", t1: "Etkinlik", v1: "Sergi", t2: "Bağlantı", v2: "Dış Web", icon: "fa-qrcode" },
+            { title: "AR Sergi Noktası 8", desc: "Artırılmış gerçeklik sergisi için 8 numaralı karekod etkileşim istasyonu.", link: "https://www.ar_sergi_qr8.comx", t1: "Etkinlik", v1: "Sergi", t2: "Bağlantı", v2: "Dış Web", icon: "fa-qrcode" },
+            { title: "AR Sergi Noktası 9", desc: "Artırılmış gerçeklik sergisi için 9 numaralı karekod etkileşim istasyonu.", link: "https://www.ar_sergi_qr9.comx", t1: "Etkinlik", v1: "Sergi", t2: "Bağlantı", v2: "Dış Web", icon: "fa-qrcode" },
+            { title: "AR Sergi Noktası 10", desc: "Artırılmış gerçeklik sergisi için 10 numaralı karekod etkileşim istasyonu.", link: "https://www.ar_sergi_qr10.comx", t1: "Etkinlik", v1: "Sergi", t2: "Bağlantı", v2: "Dış Web", icon: "fa-qrcode" },
+
+            // --- DIŞ BAĞLANTILAR (ANALİZ & GÜVENLİK) ---
             { title: "DeepFace Yüz Tanıma", desc: "Python DeepFace kütüphanesi ile anlık yaş, cinsiyet ve duygu analizi canlı testi.", link: "https://huggingface.co/spaces/serengil/deepface", t1: "Altyapı", v1: "HuggingFace API", t2: "Teknoloji", v2: "Deep Learning", icon: "fa-face-smile-scan" },
             { title: "Siber Saldırı Haritası 1", desc: "Kaspersky altyapısı ile dünyadaki siber saldırıları 3 boyutlu canlı küre üzerinde izleyin.", link: "https://cybermap.kaspersky.com/tr", t1: "Servis", v1: "Kaspersky Lab", t2: "Veri", v2: "Real-Time 3D", icon: "fa-globe" },
             { title: "Siber Saldırı Haritası 2", desc: "FortiGuard ağı üzerinden gelen siber tehditlerin ve ağ paketlerinin görsel dökümü.", link: "https://threatmap.fortiguard.com/", t1: "Servis", v1: "Fortinet Threat", t2: "Veri", v2: "Ağ Trafiği İzleme", icon: "fa-shield-halved" },
@@ -250,10 +278,7 @@
 
             // --- YEDEK PROJELER ---
             { title: "Geliştirme: Yedek Alan 1", desc: "Yeni eklenecek AR veya yazılım projesi için rezerve edilmiş geliştirici alanı.", link: "#", t1: "Durum", v1: "Boş Slot", t2: "Atama", v2: "Bekleniyor", icon: "fa-folder-plus" },
-            { title: "Geliştirme: Yedek Alan 2", desc: "Yeni eklenecek AR veya yazılım projesi için rezerve edilmiş geliştirici alanı.", link: "#", t1: "Durum", v1: "Boş Slot", t2: "Atama", v2: "Bekleniyor", icon: "fa-folder-plus" },
-            { title: "Geliştirme: Yedek Alan 3", desc: "Yeni eklenecek AR veya yazılım projesi için rezerve edilmiş geliştirici alanı.", link: "#", t1: "Durum", v1: "Boş Slot", t2: "Atama", v2: "Bekleniyor", icon: "fa-folder-plus" },
-            { title: "Geliştirme: Yedek Alan 4", desc: "Yeni eklenecek AR veya yazılım projesi için rezerve edilmiş geliştirici alanı.", link: "#", t1: "Durum", v1: "Boş Slot", t2: "Atama", v2: "Bekleniyor", icon: "fa-folder-plus" },
-            { title: "Geliştirme: Yedek Alan 5", desc: "Yeni eklenecek AR veya yazılım projesi için rezerve edilmiş geliştirici alanı.", link: "#", t1: "Durum", v1: "Boş Slot", t2: "Atama", v2: "Bekleniyor", icon: "fa-folder-plus" }
+            { title: "Geliştirme: Yedek Alan 2", desc: "Yeni eklenecek AR veya yazılım projesi için rezerve edilmiş geliştirici alanı.", link: "#", t1: "Durum", v1: "Boş Slot", t2: "Atama", v2: "Bekleniyor", icon: "fa-folder-plus" }
         ];
 
         const container = document.getElementById('projectContainer');
@@ -265,7 +290,7 @@
                 const theme = themes[index % themes.length];
                 const idDisplay = (index + 1) < 10 ? '0' + (index + 1) : (index + 1);
 
-                // Target _blank sadece dış linkler için
+                // Target _blank sadece dış linkler (http ile başlayanlar) için
                 const targetAttr = project.link.startsWith('http') ? 'target="_blank"' : '';
 
                 const cardHTML = `
